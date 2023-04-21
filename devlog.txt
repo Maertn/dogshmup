@@ -1,0 +1,44 @@
+2023-04-21
+1.
+Rebooted the shmup because I didn't want to deal with the spaghetti code in SpaceFighter. It's probably not as bad to most programmers
+as it was to me, because the program was relatively small. Restarting was a good idea tho, because I can rethink some fundamentals.
+
+First of all I'm not calling the main menu through the level anymore. In main.py I'm declaring the gamestate. If the gamestate is
+'mainmenu', we're generating the main menu. Alternatively, we can run 'level'. I like this setup, since I can easily call new levels.
+
+I'm also using a timestep that measures how long it took to run the game loop. Everything that runs as a function of time is dependent 
+on this timestep. This includes all movement and the enemy spawning. Using a timestep ensures that the program runs consistently on different
+hardware. It also allows for more accurate behaviour. I hope the program can be called deterministic at this point so far, which allows
+for the option to replay a run. I can now also introduce slowdown, which can be used to allow for complex bullet patterns while retaining
+playability. Slowdown could also be a power for the player. I'll definitely use it to test patterns, since I'm not that good of a shmup player.
+
+I've introduced lanes for the spawning of enemies. This gives a good tool for balanced level design.
+
+I've recalculated the borders, so we have a 3:4 ratio, which I believe is the standard for shmups.
+
+One feature that I'd like to implement is the creation of enemy waves and sections of the level through different classes. This allows the
+level class to not get cluttered with a huge list of enemies spawning. Instead there'll be a list of waves that are called sequentially. 
+The actual spawning will get relegated to the Wave class. I'll have to join lists of sprites for rendering in level, but I think I can make
+that work.
+
+I've created a deadline for this project, which'll be two months. The goal is to have a working prototype within that time.
+I'll need one level, which means designing a challenge. 
+
+I've decided to create 5 enemy sprites. 
+I'll need 3 different enemy bullet types, with 2 different colors. Ofcourse I need player bullet sprites as well.
+I'll also need sprites for the boss, and a player sprite.
+I'll definitely need explosion sprites.
+A background and particles would be cool, but they're less important than the other sprites.
+A more neat border image, maybe a nice main menu are also less important.
+
+I'll create one audiotrack for the level, and one for the boss. I think I already have a fitting tune for the end screen.
+Sound effects are important, but are also optional if I'm ahead of schedule.
+
+A cool gimmick to add would be options for the player, which are like little turrets that travel along with the player and help. A lot of
+shmups use them, and I think they're pretty cool.
+
+Designing the level is the most work. I'll figure out some way to organize the waves, and I'll start working on that.
+
+The one thing that is missing from the code right now that I want to salvage from the previous draft is the bullets. I didn't really 
+finish the challenges that I set for myself, but I'm a bit bored of progressing that way. I'll figure it out once I want to use it
+when designing the level. 

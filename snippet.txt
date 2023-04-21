@@ -1,0 +1,11 @@
+Enemy(
+    pos=, 
+    dt=dt, 
+    groups=[self.visible_sprites, self.enemy_sprites], 
+    width=, 
+    height=, 
+    speed=, 
+    direction=(0,0), 
+    spawn_time=spawn_time, 
+    health=, 
+    ) 
