@@ -1,0 +1,93 @@
+2023-04-21
+1.
+Rebooted the shmup because I didn't want to deal with the spaghetti code in SpaceFighter. It's probably not as bad to most programmers
+as it was to me, because the program was relatively small. Restarting was a good idea tho, because I can rethink some fundamentals.
+
+First of all I'm not calling the main menu through the level anymore. In main.py I'm declaring the gamestate. If the gamestate is
+'mainmenu', we're generating the main menu. Alternatively, we can run 'level'. I like this setup, since I can easily call new levels.
+
+I'm also using a timestep that measures how long it took to run the game loop. Everything that runs as a function of time is dependent 
+on this timestep. This includes all movement and the enemy spawning. Using a timestep ensures that the program runs consistently on different
+hardware. It also allows for more accurate behaviour. I hope the program can be called deterministic at this point so far, which allows
+for the option to replay a run. I can now also introduce slowdown, which can be used to allow for complex bullet patterns while retaining
+playability. Slowdown could also be a power for the player. I'll definitely use it to test patterns, since I'm not that good of a shmup player.
+
+I've introduced lanes for the spawning of enemies. This gives a good tool for balanced level design.
+
+I've recalculated the borders, so we have a 3:4 ratio, which I believe is the standard for shmups.
+
+One feature that I'd like to implement is the creation of enemy waves and sections of the level through different classes. This allows the
+level class to not get cluttered with a huge list of enemies spawning. Instead there'll be a list of waves that are called sequentially. 
+The actual spawning will get relegated to the Wave class. I'll have to join lists of sprites for rendering in level, but I think I can make
+that work.
+
+I've created a deadline for this project, which'll be two months. The goal is to have a working prototype within that time.
+I'll need one level, which means designing a challenge. 
+
+I've decided to create 5 enemy sprites. 
+I'll need 3 different enemy bullet types, with 2 different colors. Ofcourse I need player bullet sprites as well.
+I'll also need sprites for the boss, and a player sprite.
+I'll definitely need explosion sprites.
+A background and particles would be cool, but they're less important than the other sprites.
+A more neat border image, maybe a nice main menu are also less important.
+
+I'll create one audiotrack for the level, and one for the boss. I think I already have a fitting tune for the end screen.
+Sound effects are important, but are also optional if I'm ahead of schedule.
+
+A cool gimmick to add would be options for the player, which are like little turrets that travel along with the player and help. A lot of
+shmups use them, and I think they're pretty cool.
+
+Designing the level is the most work. I'll figure out some way to organize the waves, and I'll start working on that.
+
+The one thing that is missing from the code right now that I want to salvage from the previous draft is the bullets. I didn't really 
+finish the challenges that I set for myself, but I'm a bit bored of progressing that way. I'll figure it out once I want to use it
+when designing the level. 
+
+2023-04-23
+1.
+Kind of a big update. I intend to use the devlog more sparsely, as it's a time consuming factor in itself. It's a great tool for 
+organizing thought tho, and it's good practice just in case I ever wind up involved with professional indie game development.
+
+On the surface the biggest upgrade is the implementation of a wave class, which allows me to organize individual waves. This'll remove 
+clutter from the level itself, and allows design with smaller numbers.
+However, the biggest improvement in code came from asking a question on stackoverflow. After getting downvoted like crazy someone did
+help me out, and showed me how to make singular calls during a while loop without having to create all those stupid switches. The easier
+way is to create a dummy as an argument, dummy = []. Wrap the function in an if statement, checking if dummy is empty.
+After the function executes, append something, like dummy.append(0) Now every time the function is called it won't execute since the dummy
+isn't empty. I've already gathered that this can create unintended behaviour, so I might have to create checks in the code that empty the
+dummy if the level is restarted, but it works for now, and I'm very pleased with it so far.
+Another way to have a function call a single time is to go into global(), and edit the function ater execution to pass or something similar.
+This seems a bit more tricky, so I'll just use the dummy for now.
+
+I'm also understanding more correctly how to apply timers. For one, I don't need to import the time that an object like level has into 
+the enemies that are spawned through that object. The time in level is something that's used for organizing level, and useless to enemies.
+Enemies can create their own time by logging time.get_ticks() at initialization, and that's all the information an enemy object needs
+to have their own clock.
+
+One last thing that I'm happy with is that I've rediscovered my solution in SpaceFigher for delegating behaviour of sprites to other 
+classes by exporting the sprite groups from the place where rendering and collision is handled. It's information that needs to stay 
+conserved over all objects that are spawned in the level, but if managed correctly it's a very powerful tool. In SpaceFighter I delegated
+bullet spawning to a class in the bullet script, and in DogShmup I've delegated enemy spawning to the waves script. Here's how I intend
+to make the next steps:
+1. Implement the Bullet class from SpaceFighter into DogShmup. Player bullets aren't necessary as of yet, but for the level design I 
+do need to have the bullet patterns of enemies.
+2. Create children for the Enemy class. I'll be using a limited number of enemy design, and I don't want to insert parameters everytime
+when I already have like 6 different types.
+3. When I have an enemy, I'd like to create some AI for it, so I don't have to describe the same behaviour again and again. I've seen someone
+create a seperate class for AI, but I think I'd like to write the AI for every enemy type into their class as methods. So for bullets we
+get this structure on how they're called: Level>Waves>Enemies>Bullets. 
+
+The firing of aimed bullets requires the position of the player, so besides information from level about the sprite groups, 
+we'll also need to pass along information regaring the player. However, information about the player should already be stored within the
+sprite groups. I'm not sure if that information updates after spawning though, so this might be a bit tricky.
+(edit: checked in the Wave class, and through digging inside the imported groups from level I'm able to extract information from the
+player. The players position is updating, which is absolutely amazing news.)
+
+2.
+I'm writing this in the same breath as 1., but I feel like this should get its own header, because I don't intend to do anything with
+these observations.
+I'm really missing acceleration for the motion. Having objects move at a singular speed is somewhat boring to look at, but when I'm altering
+the speed manually the motion looks a bit janky, as expected. I'm not gonna write acceleration in the motion methods of enemies duing this 
+project tho. There's some really cool things that I think you could do when implementing acceleration, like using integrators to render
+inbetween the processing of the game logic. To do it well I'll need to hit the physics books again, which I intend to do, but it is
+outside the scope of this project.

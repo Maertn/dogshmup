@@ -17,8 +17,7 @@ class Enemy(pg.sprite.Sprite):
                 width: int, 
                 height: int, 
                 speed: int, 
-                direction: tuple, 
-                spawn_time: float, 
+                direction: tuple,
                 health: int, 
                 **movement_switch):
         super().__init__(groups)
@@ -32,7 +31,8 @@ class Enemy(pg.sprite.Sprite):
 
         # grabbing initial timestep and spawn time
         self.dt = dt
-        self.spawn_time = spawn_time
+        self.spawn_time = pg.time.get_ticks()
+        self.current_time = 0
 
         # creating motion attributes
         self.speed = speed
@@ -64,6 +64,9 @@ class Enemy(pg.sprite.Sprite):
     def update_timestep(self, dt):
         self.dt = dt
 
+    def update_current_time(self, spawn_time):
+        self.current_time = pg.time.get_ticks() - spawn_time 
+
     def move(self, dt):
         direction = pg.math.Vector2(self.direction).normalize()
         self.pos[0] += direction[0] * self.speed * dt
@@ -81,10 +84,10 @@ class Enemy(pg.sprite.Sprite):
 
         if self.rect.centerx - destination[0] <= 0:
             if self.rect.centery - destination[1] <= 0:
-                x0 = self.rect.centerx + (self.direction[0] * speed * dt) 
-                x1 = (destination[0] + 1) or (destination[0] - 1)
-                y0 = self.rect.centery + (self.direction[1] * speed * dt)
-                y1 = (destination[1] + 1) or (destination[1]-1)
+                x0 = self.pos[0] + (self.direction[0] * speed * dt) 
+                x1 = (destination[0] + (self.direction[0] * speed * dt)) or (destination[0] - (self.direction[0] * speed * dt))
+                y0 = self.pos[1] + (self.direction[1] * speed * dt)
+                y1 = (destination[1] + (self.direction[1] * speed * dt)) or (destination[1] - (self.direction[1] * speed * dt))
                 
                 if not (self.rect.centerx >= destination[0] and self.rect.centery >= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
@@ -98,8 +101,8 @@ class Enemy(pg.sprite.Sprite):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                else:
-                    self.rect.center = destination
+                    if x0 > x1 or y0 < y1:
+                        self.rect.center = destination
         
         else:
             if self.rect.centery - destination[1] <= 0:
@@ -107,16 +110,16 @@ class Enemy(pg.sprite.Sprite):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                else:
-                    self.rect.center = destination
+                    if x0 < x1 or y0 > y1:
+                        self.rect.center = destination
 
             else:
                 if not (self.pos.x <= destination[0] and self.pos.y <= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                else:
-                    self.rect.center = destination
+                    if x0 < x1 or y0 < y1:
+                        self.rect.center = destination
 
     def kill_at_border(self):
         A = (self.rect.top >= SCREEN_HEIGHT)
@@ -127,7 +130,7 @@ class Enemy(pg.sprite.Sprite):
         if A or B or C or D: self.kill()
 
     def update(self, dt):
+        self.update_current_time(self.spawn_time)
         self.update_timestep(dt)
         self.kill_at_border()
-
         

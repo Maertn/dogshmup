@@ -8,6 +8,8 @@ BORDER_WIDTH = 348
 BORDER_HEIGHT = 720
 BORDER_COLOR = 'lavender'
 
+BACKGROUND_COLOR = '#494d7e'
+
 MENU_FONT = 'graphics\\fonts\\Pacifico-Regular.ttf'
 MENU_FONT_SIZE = 80
 MENU_COLOR = 'white'

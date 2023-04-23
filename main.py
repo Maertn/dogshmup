@@ -28,7 +28,7 @@ class Game:
     def run(self):
         while True:
             # draw empty screen
-            self.screen.fill('black')
+            self.screen.fill(BACKGROUND_COLOR)
             
             # create a timestep
             dt = time.time() - self.previous_time
@@ -52,20 +52,22 @@ class Game:
                     self.menu_active = 0
                     self.state = 'level'
             
-            # startin the level
+            # starting the level
             if self.state == 'level':
                 if self.level_active == 0:
                     gamestate = Level(dt)
                     self.level_active = 1
                 gamestate.run(dt)
             
+            # creating a border to indicate 3:4 ratio
             border = Border()
             border.display()
 
+            # update display
             pg.display.update()
 
+            # limit FPS
             self.clock.tick(60)
-
 
 
 if __name__ == '__main__':

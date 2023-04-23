@@ -12,7 +12,7 @@ class MainMenu:
         y = SCREEN_HEIGHT / 2 - 200
         text_rect = text_surf.get_rect(center = (x,y))
 
-        pg.draw.rect(self.display_surface, 'black', text_rect)
+        pg.draw.rect(self.display_surface, BACKGROUND_COLOR, text_rect)
         self.display_surface.blit(text_surf, text_rect)
     
     def start_run(self):

@@ -4,8 +4,7 @@ Enemy(
     groups=[self.visible_sprites, self.enemy_sprites], 
     width=, 
     height=, 
-    speed=, 
-    direction=(0,0), 
-    spawn_time=spawn_time, 
+    speed=50, 
+    direction=(0,1), 
     health=, 
     ) 
