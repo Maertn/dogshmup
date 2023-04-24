@@ -154,5 +154,3 @@ class PopcornBunny(Enemy):
             self.move(dt)
             if player_position[1] >= self.pos[1]:
                 self.move_to(dt, player_position, 10)
-
-                test
