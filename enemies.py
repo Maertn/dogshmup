@@ -84,42 +84,29 @@ class Enemy(pg.sprite.Sprite):
 
         if self.rect.centerx - destination[0] <= 0:
             if self.rect.centery - destination[1] <= 0:
-                x0 = self.pos[0] + (self.direction[0] * speed * dt) 
-                x1 = (destination[0] + (self.direction[0] * speed * dt)) or (destination[0] - (self.direction[0] * speed * dt))
-                y0 = self.pos[1] + (self.direction[1] * speed * dt)
-                y1 = (destination[1] + (self.direction[1] * speed * dt)) or (destination[1] - (self.direction[1] * speed * dt))
-                
                 if not (self.rect.centerx >= destination[0] and self.rect.centery >= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    if x0 > x1 or y0 > y1:
-                        self.rect.center = destination
             
             else:
-                if not (self.rect.centerx >= destination[0] or self.rect.centery <= destination[1]):
+                if not (self.pos[0] >= destination[0] or self.pos[1] <= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    if x0 > x1 or y0 < y1:
-                        self.rect.center = destination
         
         else:
             if self.rect.centery - destination[1] <= 0:
-                if not (self.pos.x <= destination[0] and self.pos.y >= destination[1]):
+                if not (self.pos[0] <= destination[0] and self.pos[1] >= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    if x0 < x1 or y0 > y1:
-                        self.rect.center = destination
 
             else:
-                if not (self.pos.x <= destination[0] and self.pos.y <= destination[1]):
+                if not (self.pos[0] <= destination[0] and self.pos[1] <= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    if x0 < x1 or y0 < y1:
-                        self.rect.center = destination
 
     def kill_at_border(self):
         A = (self.rect.top >= SCREEN_HEIGHT)
@@ -129,8 +116,41 @@ class Enemy(pg.sprite.Sprite):
         
         if A or B or C or D: self.kill()
 
+    def ai(self, dt, groups):
+        pass
+
     def update(self, dt):
         self.update_current_time(self.spawn_time)
         self.update_timestep(dt)
         self.kill_at_border()
+    
+class PopcornBunny(Enemy):
+    def __init__(
+        self, 
+        pos: tuple, 
+        dt: float, 
+        groups: pg.sprite.Group, 
+        **movement_switch):
+        super().__init__(
+                pos,
+                dt,
+                groups,
+                width =10,
+                height=10,
+                speed=50,
+                direction=(0,1),
+                health=5,
+                **movement_switch)
+    
+    def ai(self, dt, groups, bullet_dummy=[]):
+        destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/3)))
+        player_position = groups[0].sprites()[0].position
         
+        if self.pos[1] <= destination[1] - (self.speed * dt):
+            speed = 200 - (dt * self.current_time * 3)
+            self.move_to(dt, destination, speed)
+        else:
+            self.direction = (0,1)
+            self.move(dt)
+            if player_position[1] >= self.pos[1]:
+                self.move_to(dt, player_position, 10)

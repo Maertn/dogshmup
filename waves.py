@@ -1,7 +1,7 @@
 import pygame as pg
 
 from settings import *
-from enemies import Enemy
+from enemies import Enemy, PopcornBunny
 
 class Wave:
     def __init__(self, groups, dt):
@@ -18,15 +18,10 @@ class Wave:
     
     def spawn_enemies(self, groups, current_time, dt, enemy_dummy=[]):
         if current_time >= 500 and (0 not in enemy_dummy):
-            Enemy(
+            PopcornBunny(
                 pos=(SPAWN_LANE3, 0), 
                 dt=dt, 
-                groups=groups, 
-                width=10, 
-                height=10, 
-                speed=50, 
-                direction=(0,1), 
-                health=1, 
+                groups=groups
                 )
             enemy_dummy.append(0)
         
@@ -83,13 +78,8 @@ class Wave:
             enemy_dummy.append(4)
         
         for enemy in groups[1]:
-            destination = (enemy.rect.centerx, round(SCREEN_HEIGHT * (1/3)))
-            if enemy.pos[1] <= destination[1] - (enemy.speed * dt):
-                speed = 200 - (dt * enemy.current_time * 3)
-                enemy.move_to(self.dt, destination, speed)
-            else:
-                enemy.direction = (0,1)
-                enemy.move(dt)
+            enemy.ai(dt, groups)
+
 
     def run(self, dt):
         self.update_timestep(dt)
