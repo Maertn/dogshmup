@@ -21,59 +21,39 @@ class Wave:
             PopcornBunny(
                 pos=(SPAWN_LANE3, 0), 
                 dt=dt, 
-                groups=groups
+                groups=[groups[0], groups[1]],
                 )
             enemy_dummy.append(0)
         
         if current_time >= 1500 and (1 not in enemy_dummy):
-            Enemy(
+            PopcornBunny(
                 pos=(SPAWN_LANE1, 0), 
                 dt=dt, 
-                groups=groups, 
-                width=10, 
-                height=10, 
-                speed=50, 
-                direction=(0,1), 
-                health=1, 
+                groups=[groups[0], groups[1]],
                 )
             enemy_dummy.append(1)
         
         if current_time >= 3000 and (2 not in enemy_dummy):
-            Enemy(
+            PopcornBunny(
                 pos=(SPAWN_LANE5, 0), 
                 dt=dt, 
-                groups=groups, 
-                width=10, 
-                height=10, 
-                speed=50, 
-                direction=(0,1), 
-                health=1, 
+                groups=[groups[0], groups[1]],
                 )
             enemy_dummy.append(2)
         
         if current_time >= 4500 and (3 not in enemy_dummy):
-            Enemy(
-                pos=(SPAWN_LANE2, 0),
+            PopcornBunny(
+                pos=(SPAWN_LANE2, 0), 
                 dt=dt, 
-                groups=groups, 
-                width=10, 
-                height=10, 
-                speed=50, 
-                direction=(0,1), 
-                health=1, 
+                groups=[groups[0], groups[1]],
                 )
             enemy_dummy.append(3)
 
         if current_time >= 6000 and (4 not in enemy_dummy):
-            Enemy(
-                pos=(SPAWN_LANE4, 0),
+            PopcornBunny(
+                pos=(SPAWN_LANE4, 0), 
                 dt=dt, 
-                groups=groups, 
-                width=10, 
-                height=10, 
-                speed=50, 
-                direction=(0,1), 
-                health=1, 
+                groups=[groups[0], groups[1]],
                 )
             enemy_dummy.append(4)
         

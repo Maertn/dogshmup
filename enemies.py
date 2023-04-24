@@ -2,6 +2,7 @@ import pygame as pg
 import math
 
 from settings import *
+from bullets import ShotsFired
 
 class Enemy(pg.sprite.Sprite):
     """Class that spawns an enemy. 
@@ -119,6 +120,13 @@ class Enemy(pg.sprite.Sprite):
     def ai(self, dt, groups):
         pass
 
+    def aim_bullet(self, destination):
+        distance = math.sqrt(pow((self.pos[0] - destination[0]), 2) + pow((self.pos[1] - destination[1]), 2))
+        directionx = (destination[0] - self.pos[0])/distance
+        directiony = (destination[1] - self.pos[1])/distance
+        direction = pg.math.Vector2(directionx, directiony)
+        return direction
+
     def update(self, dt):
         self.update_current_time(self.spawn_time)
         self.update_timestep(dt)
@@ -141,11 +149,14 @@ class PopcornBunny(Enemy):
                 direction=(0,1),
                 health=5,
                 **movement_switch)
-    
-    def ai(self, dt, groups, bullet_dummy=[]):
-        destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/3)))
+        self.shot_dict = []
+        self.bullet_dummy = []
+
+    def ai(self, dt, groups):
+        destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/4)))
         player_position = groups[0].sprites()[0].position
-        
+
+        # movement
         if self.pos[1] <= destination[1] - (self.speed * dt):
             speed = 200 - (dt * self.current_time * 3)
             self.move_to(dt, destination, speed)
@@ -154,3 +165,20 @@ class PopcornBunny(Enemy):
             self.move(dt)
             if player_position[1] >= self.pos[1]:
                 self.move_to(dt, player_position, 10)
+
+        # bullets
+        if self.pos[1] >= destination[1] - (self.speed * dt) and (0 not in self.bullet_dummy):
+            shot = ShotsFired(
+                dt = self.dt,
+                pos = (self.rect.centerx, self.rect.bottom),
+                groups = [groups[0], groups[2]],
+                speed = 80,
+                direction = self.aim_bullet(player_position),
+                number_of_bullets = 3,
+                spread = 1/6
+                )
+            self.shot_dict.append(shot)
+            self.bullet_dummy.append(0)
+
+        for shot in self.shot_dict:
+            shot.update(self.dt)

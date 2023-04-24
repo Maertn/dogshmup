@@ -5,18 +5,18 @@ from settings import *
 # player bullets
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, dt, spawn_time, pos, groups, speed, direction: pg.math.Vector2):
+    def __init__(self, dt, pos, groups, speed, direction: pg.math.Vector2):
         super().__init__(groups)
         self.image = pg.Surface((8, 8)).convert_alpha()
         self.color = 'white'
-        self.rect = self.image.get_rect(center = pos)   
+        self.rect = self.image.get_rect(center=pos)   
         self.direction = direction
         self.speed = speed
         self.pos = pg.math.Vector2(self.rect.center)
         
         # time attributes
         self.dt = dt
-        self.spawn_time = spawn_time
+        self.spawn_time = pg.time.get_ticks()
         self.current_time = 0
 
     def update_timestep(self, dt):
@@ -31,6 +31,12 @@ class Bullet(pg.sprite.Sprite):
             self.direction = self.direction.normalize()
         self.rect.centerx += self.direction[0] * self.speed * dt
         self.rect.centery += self.direction[1] * self.speed * dt
+
+    def aim_bullet(self, destination):
+        distance = math.sqrt(pow((self.pos[0] - destination[0]), 2) + pow((self.pos[1] - destination[1]), 2))
+        directionx = (destination[0] - self.pos[0])/distance
+        directiony = (destination[1] - self.pos[1])/distance
+        self.direction = pg.math.Vector2(directionx, directiony)
 
     def remove_bullet(self):
         if self.rect.centery <= 0 or self.rect.centery >= SCREEN_HEIGHT or self.rect.centerx <=BORDER_WIDTH or self.rect.centerx >= BORDER_WIDTH + GAME_WIDTH:
@@ -48,11 +54,14 @@ class Bullet(pg.sprite.Sprite):
 
 
 class EnemyBullet(Bullet):
-    def __init__(self, pos, groups, speed, direction):
-        super().__init__(pos, groups, speed, direction)
+    def __init__(self, dt, pos, groups, speed, direction):
+        super().__init__(dt, pos, groups, speed, direction)
+        self.image = pg.Surface((8, 8)).convert_alpha()
         self.rect = self.image.get_rect(center = pos)
+        self.color = 'white'
         self.speed = speed
         self.direction = direction
+        self.dt = dt
         
 
     def trajectory(self, dt):
@@ -62,19 +71,22 @@ class EnemyBullet(Bullet):
         self.rect.centery = round(self.pos.y)
 
     def update(self, dt):
+        self.update_timestep(dt)
         self.trajectory(dt)
         self.remove_bullet()
+        self.color_bullet()
         
 
 # multi-shot
 class ShotsFired:
-    def __init__(self, pos, groups, speed, direction, number_of_bullets: int, spread: float):
+    def __init__(self, dt, pos, groups, speed, direction, number_of_bullets: int, spread: float):
         self.pos = pos
         self.groups = groups
         self.direction = direction
         self.speed = speed
         self.list_of_bullets = list(range(1, number_of_bullets + 1))
         self.shot_switch = True
+        self.dt = dt
         
         # creating spread over unit circle
         self.spread = math.pi*2*(spread)
@@ -121,15 +133,19 @@ class ShotsFired:
                     direction = (direction[0], direction[1])
                     self.bullet_dict[bullet] = direction   
 
+    def update_timestep(self, dt):
+        self.dt = dt
+
     # execute spawning of bullets as recorded in bullet_dict
-    def shoot(self):
+    def shoot(self, dt):
         if self.shot_switch:
             for bullet in self.bullet_dict.items():
                 direction = bullet[1]
                 print(direction)
                 direction = pg.math.Vector2(direction).normalize()
-                EnemyBullet(self.pos, self.groups, self.speed, direction)
-            self.shot_switch = False 
+                EnemyBullet(dt, self.pos, self.groups, self.speed, direction)
+            self.shot_switch = False
 
-    def update(self):
-        self.shoot()
+    def update(self,dt):
+        self.update_timestep(dt)
+        self.shoot(dt)

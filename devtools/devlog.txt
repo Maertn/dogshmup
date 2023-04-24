@@ -91,3 +91,17 @@ the speed manually the motion looks a bit janky, as expected. I'm not gonna writ
 project tho. There's some really cool things that I think you could do when implementing acceleration, like using integrators to render
 inbetween the processing of the game logic. To do it well I'll need to hit the physics books again, which I intend to do, but it is
 outside the scope of this project.
+
+2023-04-24
+1.
+It was a bit of a struggle, but bullets are implemented. I deleted two hours of progress once by accident, and it's a chore to refactor 
+the code to the new project. But it's sort of working now. I also added a method to the enemies that allows bullets to be aimed by the AI.
+The basics of the AI are working. It controls the movement of enemies and bullet spawning. In the current example I have a type of enemy
+called PopcornBunny fire a triple shot at the player once. What I really want is for the shots to be on a timer. After a timer is set up
+I'll describe conditions for types of shots to be fired. Some conditions that we need are distance between player and enemy, so enemy doesn't
+suddenly shoot with no opportunity to respond. This ability of the player to block enemies from shooting is called bullet sealing. 
+Another condition would be distance to the lower border, so that enemies scrolling down don't spawn complex patterns towards the back of the 
+player, making for too rough a punishment on the player after leaving an enemy alive.
+
+I'll need some food, a walk with the dog, and I'll work on the AI some more tomorrow. When it comes to planning what to do next, I think I
+can continue along these lines. Creating new enemies, developing existing ones further with sprites and stuff, and designing spawn patterns
