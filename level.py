@@ -11,7 +11,7 @@ class Level():
         
         # import timestep and current_time
         self.dt = dt
-        self.spawn_time = pg.time.get_ticks()
+        self.spawn_time = pg.time.get_ticks() * dt
         self.current_time = 0
 
         # get display
@@ -36,8 +36,8 @@ class Level():
     def update_timestep(self, dt):
         self.dt = dt
 
-    def update_current_time(self, spawn_time):
-        self.current_time = pg.time.get_ticks() - spawn_time
+    def update_current_time(self, dt, spawn_time):
+        self.current_time = (pg.time.get_ticks() * dt) - spawn_time
 
     def spawn_player(self, dt):
         x = SCREEN_WIDTH / 2
@@ -57,7 +57,7 @@ class Level():
 
     def run(self, dt):
         self.update_timestep(dt)
-        self.update_current_time(self.spawn_time)
+        self.update_current_time(dt, self.spawn_time)
         self.spawn_wave(dt)
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update(dt)

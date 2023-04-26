@@ -18,12 +18,17 @@ class Game:
         # create clock and setup of timestep
         self.clock = pg.time.Clock()
         self.previous_time = time.time()
+        self.dt = 0
         
         # setting initial state
         self.state = 'mainmenu'
         self.menu_active = 0 
         self.level_active = 0
     
+    def slowdown(self, dt):
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LCTRL]:
+            self.dt = dt / 2 
 
     def run(self):
         while True:
@@ -31,9 +36,11 @@ class Game:
             self.screen.fill(BACKGROUND_COLOR)
             
             # create a timestep
-            dt = time.time() - self.previous_time
+            self.dt = time.time() - self.previous_time
             self.previous_time = time.time()
-            
+
+            self.slowdown(self.dt)
+
             # create exit protocol
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -55,9 +62,9 @@ class Game:
             # starting the level
             if self.state == 'level':
                 if self.level_active == 0:
-                    gamestate = Level(dt)
+                    gamestate = Level(self.dt)
                     self.level_active = 1
-                gamestate.run(dt)
+                gamestate.run(self.dt)
             
             # creating a border to indicate 3:4 ratio
             border = Border()

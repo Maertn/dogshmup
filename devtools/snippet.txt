@@ -7,4 +7,6 @@ Enemy(
     speed=50, 
     direction=(0,1), 
     health=, 
-    ) 
+    )
+
+player_position = self.groups[0].sprites()[0].position

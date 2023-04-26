@@ -32,7 +32,7 @@ class Enemy(pg.sprite.Sprite):
 
         # grabbing initial timestep and spawn time
         self.dt = dt
-        self.spawn_time = pg.time.get_ticks()
+        self.spawn_time = pg.time.get_ticks() * dt
         self.current_time = 0
 
         # creating motion attributes
@@ -65,8 +65,8 @@ class Enemy(pg.sprite.Sprite):
     def update_timestep(self, dt):
         self.dt = dt
 
-    def update_current_time(self, spawn_time):
-        self.current_time = pg.time.get_ticks() - spawn_time 
+    def update_current_time(self, dt, spawn_time):
+        self.current_time = (pg.time.get_ticks() * dt) - spawn_time 
 
     def move(self, dt):
         direction = pg.math.Vector2(self.direction).normalize()
@@ -128,7 +128,7 @@ class Enemy(pg.sprite.Sprite):
         return direction
 
     def update(self, dt):
-        self.update_current_time(self.spawn_time)
+        self.update_current_time(dt, self.spawn_time)
         self.update_timestep(dt)
         self.kill_at_border()
     
@@ -149,6 +149,8 @@ class PopcornBunny(Enemy):
                 direction=(0,1),
                 health=5,
                 **movement_switch)
+        
+        # spawn dummies
         self.shot_dict = []
         self.bullet_dummy = []
 
@@ -172,10 +174,10 @@ class PopcornBunny(Enemy):
                 dt = self.dt,
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
-                speed = 80,
+                speed = 200,
                 direction = self.aim_bullet(player_position),
                 number_of_bullets = 3,
-                spread = 1/6
+                spread = 1/10
                 )
             self.shot_dict.append(shot)
             self.bullet_dummy.append(0)

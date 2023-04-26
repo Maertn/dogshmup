@@ -16,22 +16,24 @@ class Bullet(pg.sprite.Sprite):
         
         # time attributes
         self.dt = dt
-        self.spawn_time = pg.time.get_ticks()
+        self.spawn_time = pg.time.get_ticks() * dt
         self.current_time = 0
 
     def update_timestep(self, dt):
         self.dt = dt
 
-    def update_current_time(self):
-        self.current_time = pg.time.get_ticks() - self.spawn_time
+    def update_current_time(self, dt):
+        self.current_time = (pg.time.get_ticks() * dt) - self.spawn_time
 
-    def trajectory(self, dt):
+    # Linear movement of bullets
+    def move(self, dt):
         self.direction = pg.math.Vector2(self.direction)
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
         self.rect.centerx += self.direction[0] * self.speed * dt
         self.rect.centery += self.direction[1] * self.speed * dt
 
+    # Used in ShotsFired to aim at a position.
     def aim_bullet(self, destination):
         distance = math.sqrt(pow((self.pos[0] - destination[0]), 2) + pow((self.pos[1] - destination[1]), 2))
         directionx = (destination[0] - self.pos[0])/distance
@@ -42,13 +44,14 @@ class Bullet(pg.sprite.Sprite):
         if self.rect.centery <= 0 or self.rect.centery >= SCREEN_HEIGHT or self.rect.centerx <=BORDER_WIDTH or self.rect.centerx >= BORDER_WIDTH + GAME_WIDTH:
             self.kill()
 
+    # Abstracted colouring of bullet
     def color_bullet(self):
         self.image.fill(self.color)
 
     def update(self, dt):
         self.update_timestep(dt)
         self.update_current_time()
-        self.trajectory(dt)
+        self.move(dt)
         self.remove_bullet()
         self.color_bullet()
 
@@ -64,7 +67,7 @@ class EnemyBullet(Bullet):
         self.dt = dt
         
 
-    def trajectory(self, dt):
+    def move(self, dt):
         self.pos.x += self.direction[0] * self.speed * dt
         self.pos.y += self.direction[1] * self.speed * dt
         self.rect.centerx = round(self.pos.x)
@@ -72,7 +75,8 @@ class EnemyBullet(Bullet):
 
     def update(self, dt):
         self.update_timestep(dt)
-        self.trajectory(dt)
+        self.update_current_time(dt)
+        self.move(dt)
         self.remove_bullet()
         self.color_bullet()
         
@@ -141,7 +145,6 @@ class ShotsFired:
         if self.shot_switch:
             for bullet in self.bullet_dict.items():
                 direction = bullet[1]
-                print(direction)
                 direction = pg.math.Vector2(direction).normalize()
                 EnemyBullet(dt, self.pos, self.groups, self.speed, direction)
             self.shot_switch = False
