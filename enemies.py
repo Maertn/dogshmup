@@ -76,10 +76,11 @@ class Enemy(pg.sprite.Sprite):
         self.rect.centery = round(self.pos[1])
 
     def move_to(self, dt, destination, speed):
-        distance = math.sqrt(pow((self.rect.centerx - destination[0]),2) + pow((self.rect.centery - destination[1]),2))
+        distance = math.sqrt(pow((self.pos[0] - destination[0]),2) + pow((self.pos[1] - destination[1]),2))
         if distance != 0:
-            direction = pg.math.Vector2(((destination[0] - self.rect.centerx)/distance), ((destination[1] - self.rect.centery)/distance))
-            self.direction = direction.normalize()
+            self.direction = pg.math.Vector2(((destination[0] - self.rect.centerx)/distance), ((destination[1] - self.rect.centery)/distance))
+            if not (self.direction[0] == 0 or self.direction[1] == 1): 
+                self.direction = self.direction.normalize()
         else:
             pass
 
@@ -91,10 +92,11 @@ class Enemy(pg.sprite.Sprite):
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
             
             else:
-                if not (self.pos[0] >= destination[0] or self.pos[1] <= destination[1]):
+                if not (self.pos[0] >= destination[0] and self.pos[1] <= destination[1]):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
+                    print('ok')
         
         else:
             if self.rect.centery - destination[1] <= 0:
@@ -108,6 +110,7 @@ class Enemy(pg.sprite.Sprite):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
+                    print('yes')
 
     def kill_at_border(self):
         A = (self.rect.top >= SCREEN_HEIGHT)
@@ -128,7 +131,7 @@ class Enemy(pg.sprite.Sprite):
         return direction
 
     def create_cooldown(self, dt, call_time, cooldown):
-        print(self.current_time - call_time)
+        # print(self.current_time - call_time)
         if self.current_time - call_time >= cooldown * dt:
             return True
 
@@ -160,7 +163,14 @@ class PopcornBunny(Enemy):
         self.bullet_dummy = []
         self.bullet_spawn = []
 
-    def ai(self, dt, groups):
+        self.movement_dict = []
+
+    def ai_test(self, dt, groups):
+        """This AI accelerates into the screen untill 1/4th. 
+        After 1/4th it scrolls downwards, while slowly moving towards the player untill the y position is greater than the player.
+        Between 1/4 and 2/3rd of the screen it shoots bursts of three aimed at the player.
+        After 2/3rd of the screen it shoots single shots aimed at the player."""
+        
         destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/4)))
         player_position = groups[0].sprites()[0].position
 
@@ -175,7 +185,7 @@ class PopcornBunny(Enemy):
                 self.move_to(dt, player_position, 10)
 
         # bullets
-        if self.pos[1] >= destination[1] - (self.speed * dt) and (0 not in self.bullet_dummy):
+        if self.pos[1] >= destination[1] - (self.speed * dt) and (0 not in self.bullet_dummy) and self.pos[1] <= SCREEN_HEIGHT*(2/3):
             shot = ShotsFired(
                 dt = self.dt,
                 pos = (self.rect.centerx, self.rect.bottom),
@@ -189,12 +199,52 @@ class PopcornBunny(Enemy):
             self.bullet_spawn.append(self.current_time)
             self.bullet_dummy.append(0)
 
+        if self.pos[1] >= SCREEN_HEIGHT * (2/3) and (0 not in self.bullet_dummy):
+            shot = ShotsFired(
+                dt = self.dt,
+                pos = (self.rect.centerx, self.rect.bottom),
+                groups = [groups[0], groups[2]],
+                speed = 200,
+                direction = self.aim_bullet(player_position),
+                number_of_bullets = 1,
+                spread = 1/10
+                )
+            self.shot_dict.append(shot)
+            self.bullet_spawn.append(self.current_time)
+            self.bullet_dummy.append(0)
+
         if 0 in self.bullet_dummy:
             cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
             if cooldown:
                 self.bullet_spawn.pop()
                 self.bullet_dummy = []
-                
 
         for shot in self.shot_dict:
             shot.update(self.dt)
+
+    def ai0(self, dt, groups, movement_switch1, movement_switch2):
+        """Requires two movement switches.
+        This AI moves the enemy downwards, slightly towards the player.
+        It hovers at 1/3rd of the screen, and runs off after a short period towards the upper edge of the screen.
+        After it reaches 1/3rd of the screen, it starts shooting single shots aimed at the player."""
+
+        destination = (self.pos[0], SCREEN_HEIGHT * (1/3))
+        player_position = groups[0].sprites()[0].position
+
+        # movement
+        if self.pos[1] <= destination[1] and self.movement_switch1 == True:
+            self.move_to(dt, destination, 100)
+            print(self.direction[1] * 100 * dt)
+            if self.pos[1] + (self.direction[1] * self.speed * dt) >= destination[1] - (self.direction[1] * self.speed * dt):
+                self.movement_dict.append(self.current_time)
+                self.movement_switch1 = False
+        elif self.movement_switch1 == False and self.movement_switch2 == True:
+            cooldown = self.create_cooldown(self.dt, self.movement_dict[0], 300)
+            if cooldown:
+                print('Ok')
+                self.movement_switch2 = False
+        elif self.movement_switch1 == False and self.movement_switch2 == False:
+            print(self.direction[1] * 100 * dt)
+            self.move_to(dt, (self.pos[0], 0), 100)
+            print(self.direction[1] * 100 * dt)
+            
