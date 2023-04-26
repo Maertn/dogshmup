@@ -225,26 +225,52 @@ class PopcornBunny(Enemy):
     def ai0(self, dt, groups, movement_switch1, movement_switch2):
         """Requires two movement switches.
         This AI moves the enemy downwards, slightly towards the player.
-        It hovers at 1/3rd of the screen, and runs off after a short period towards the upper edge of the screen.
-        After it reaches 1/3rd of the screen, it starts shooting single shots aimed at the player."""
+        It hovers at 1/2 of the screen, and runs off after a short period towards the upper edge of the screen.
+        After it reaches 1/3 of the screen, it starts shooting single shots aimed at the player."""
 
-        destination = (self.pos[0], SCREEN_HEIGHT * (1/3))
+        destination = (self.pos[0], SCREEN_HEIGHT * (1/2))
         player_position = groups[0].sprites()[0].position
 
         # movement
         if self.pos[1] <= destination[1] and self.movement_switch1 == True:
             self.move_to(dt, destination, 100)
-            print(self.direction[1] * 100 * dt)
             if self.pos[1] + (self.direction[1] * self.speed * dt) >= destination[1] - (self.direction[1] * self.speed * dt):
                 self.movement_dict.append(self.current_time)
                 self.movement_switch1 = False
         elif self.movement_switch1 == False and self.movement_switch2 == True:
-            cooldown = self.create_cooldown(self.dt, self.movement_dict[0], 300)
+            cooldown = self.create_cooldown(self.dt, self.movement_dict[0], 1500)
             if cooldown:
-                print('Ok')
                 self.movement_switch2 = False
         elif self.movement_switch1 == False and self.movement_switch2 == False:
-            print(self.direction[1] * 100 * dt)
-            self.move_to(dt, (self.pos[0], 0), 100)
-            print(self.direction[1] * 100 * dt)
+            self.move_to(dt, (self.pos[0], -100), 100)
+
+        self.move_to(dt, player_position, 20)
+
+        # bullets
+        if self.pos[1] >= SCREEN_HEIGHT * (1/3) and (0 not in self.bullet_dummy):
+            self.bullet_dummy.append(0)
+        
+        if (0 in self.bullet_dummy) and (1 not in self.bullet_dummy):
+            shot = ShotsFired(
+                dt = self.dt,
+                pos = (self.rect.centerx, self.rect.bottom),
+                groups = [groups[0], groups[2]],
+                speed = 200,
+                direction = self.aim_bullet(player_position),
+                number_of_bullets = 1,
+                spread = 1/10
+                )
+            self.shot_dict.append(shot)
+            self.bullet_spawn.append(self.current_time)
+            self.bullet_dummy.append(1)
+
+        if 1 in self.bullet_dummy:
+            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
+            if cooldown:
+                self.bullet_spawn.pop()
+                self.bullet_dummy.pop()
+
+        for shot in self.shot_dict:
+            shot.update(self.dt)
+            print(self.bullet_dummy)
             
