@@ -127,6 +127,11 @@ class Enemy(pg.sprite.Sprite):
         direction = pg.math.Vector2(directionx, directiony)
         return direction
 
+    def create_cooldown(self, dt, call_time, cooldown):
+        print(self.current_time - call_time)
+        if self.current_time - call_time >= cooldown * dt:
+            return True
+
     def update(self, dt):
         self.update_current_time(dt, self.spawn_time)
         self.update_timestep(dt)
@@ -153,6 +158,7 @@ class PopcornBunny(Enemy):
         # spawn dummies
         self.shot_dict = []
         self.bullet_dummy = []
+        self.bullet_spawn = []
 
     def ai(self, dt, groups):
         destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/4)))
@@ -180,7 +186,15 @@ class PopcornBunny(Enemy):
                 spread = 1/10
                 )
             self.shot_dict.append(shot)
+            self.bullet_spawn.append(self.current_time)
             self.bullet_dummy.append(0)
+
+        if 0 in self.bullet_dummy:
+            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
+            if cooldown:
+                self.bullet_spawn.pop()
+                self.bullet_dummy = []
+                
 
         for shot in self.shot_dict:
             shot.update(self.dt)
