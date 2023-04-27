@@ -2,7 +2,7 @@ import pygame as pg
 import math
 
 from settings import *
-from bullets import ShotsFired
+from bullets import *
 
 class Enemy(pg.sprite.Sprite):
     """Class that spawns an enemy. 
@@ -96,7 +96,6 @@ class Enemy(pg.sprite.Sprite):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    print('ok')
         
         else:
             if self.rect.centery - destination[1] <= 0:
@@ -110,7 +109,6 @@ class Enemy(pg.sprite.Sprite):
                     self.pos[0] += self.direction[0] * speed * dt
                     self.pos[1] += self.direction[1] * speed * dt
                     self.rect.center = round(self.pos[0]), round(self.pos[1])
-                    print('yes')
 
     def kill_at_border(self):
         A = (self.rect.top >= SCREEN_HEIGHT)
@@ -151,8 +149,8 @@ class PopcornBunny(Enemy):
                 pos,
                 dt,
                 groups,
-                width =10,
-                height=10,
+                width =40,
+                height=40,
                 speed=50,
                 direction=(0,1),
                 health=5,
@@ -226,6 +224,7 @@ class PopcornBunny(Enemy):
         """Requires two movement switches.
         This AI moves the enemy downwards, slightly towards the player.
         It hovers at 1/2 of the screen, and runs off after a short period towards the upper edge of the screen.
+        During the run-off the enemy stops edging towards the player.
         After it reaches 1/3 of the screen, it starts shooting single shots aimed at the player."""
 
         destination = (self.pos[0], SCREEN_HEIGHT * (1/2))
@@ -234,17 +233,17 @@ class PopcornBunny(Enemy):
         # movement
         if self.pos[1] <= destination[1] and self.movement_switch1 == True:
             self.move_to(dt, destination, 100)
+            self.move_to(dt, player_position, 20)
             if self.pos[1] + (self.direction[1] * self.speed * dt) >= destination[1] - (self.direction[1] * self.speed * dt):
                 self.movement_dict.append(self.current_time)
                 self.movement_switch1 = False
         elif self.movement_switch1 == False and self.movement_switch2 == True:
+            self.move_to(dt, player_position, 20)
             cooldown = self.create_cooldown(self.dt, self.movement_dict[0], 1500)
             if cooldown:
                 self.movement_switch2 = False
         elif self.movement_switch1 == False and self.movement_switch2 == False:
             self.move_to(dt, (self.pos[0], -100), 100)
-
-        self.move_to(dt, player_position, 20)
 
         # bullets
         if self.pos[1] >= SCREEN_HEIGHT * (1/3) and (0 not in self.bullet_dummy):
@@ -272,5 +271,47 @@ class PopcornBunny(Enemy):
 
         for shot in self.shot_dict:
             shot.update(self.dt)
-            print(self.bullet_dummy)
+
+
+    def ai1(self, dt, groups):
+        """This AI does a suicide run on the player."""
+        player_position = groups[0].sprites()[0].position
+
+        # movement
+        if not (self.pos[1] >= player_position[1] or 0 in self.movement_dict):
+            self.move_to(dt, player_position, 150)
+        else:
+            self.movement_dict.append(0)
+            self.move_to(dt, (self.pos[0], SCREEN_HEIGHT + 100), 150)
+            self.move_to(dt, player_position, 30)
+
+        # bullets
+        if not (0 in self.bullet_dummy):
+            shot = ShotsFired(
+                dt = dt,
+                pos = (self.rect.centerx, self.rect.bottom),
+                groups = [groups[0], groups[2]],
+                speed = 500,
+                direction = self.aim_bullet(player_position),
+                number_of_bullets = 1,
+                spread = 1
+                )
+            self.shot_dict.append(shot)
+            self.bullet_spawn.append(self.current_time)
+            self.bullet_dummy.append(0)
+
+        if 0 in self.bullet_dummy:
+            cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 200)
+            if cooldown:
+                
+                print(True)
+                self.bullet_spawn.pop()
+                self.bullet_dummy.pop()
+        
+        for shot in self.shot_dict:
+            shot.update(self.dt)
+
+
+
+
             

@@ -4,7 +4,7 @@ import time
 from settings import *
 from player import Player
 from enemies import Enemy
-from waves import Wave
+from waves import *
 
 class Level():
     def __init__(self, dt):
@@ -48,7 +48,7 @@ class Level():
         if dummy:
             pass
         else:
-            wave = Wave([self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
+            wave = Wave1_1([self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
             self.waves.append(wave)
             dummy.append(0)
             
@@ -61,3 +61,4 @@ class Level():
         self.spawn_wave(dt)
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update(dt)
+        print(self.enemy_bullet_sprites)

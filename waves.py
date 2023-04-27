@@ -22,6 +22,21 @@ class Wave:
         self.current_time = (pg.time.get_ticks() * dt) - spawn_time
     
     def spawn_enemies(self, groups, current_time, dt, enemy_dummy=[]):
+        pass
+
+
+    def run(self, dt):
+        self.update_timestep(dt)
+        self.update_time(dt, self.spawn_time)
+        self.spawn_enemies(self.groups, self.current_time, self.dt)
+
+
+class Wave1_1(Wave):
+    def __init__(self, groups, dt):
+        super().__init__(groups, dt)
+
+        
+    def spawn_enemies(self, groups, current_time, dt, enemy_dummy=[]):
         if current_time >= 5 and (0 not in enemy_dummy):
             PopcornBunny(
                 pos=(SPAWN_LANE3, 0), 
@@ -73,10 +88,4 @@ class Wave:
             enemy_dummy.append(4)
         
         for enemy in groups[1]:
-            enemy.ai0(dt, groups, enemy.movement_switch1, enemy.movement_switch2)
-
-
-    def run(self, dt):
-        self.update_timestep(dt)
-        self.update_time(dt, self.spawn_time)
-        self.spawn_enemies(self.groups, self.current_time, self.dt)
+            enemy.ai1(dt, groups)
