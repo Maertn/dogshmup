@@ -243,7 +243,7 @@ class PopcornBunny(Enemy):
             if cooldown:
                 self.movement_switch2 = False
         elif self.movement_switch1 == False and self.movement_switch2 == False:
-            self.move_to(dt, (self.pos[0], -100), 100)
+            self.move_to(dt, (self.pos[0], -100), 200)
 
         # bullets
         if self.pos[1] >= SCREEN_HEIGHT * (1/3) and (0 not in self.bullet_dummy):
@@ -272,21 +272,20 @@ class PopcornBunny(Enemy):
         for shot in self.shot_dict:
             shot.update(self.dt)
 
-
     def ai1(self, dt, groups):
         """This AI does a suicide run on the player."""
         player_position = groups[0].sprites()[0].position
 
         # movement
-        if not (self.pos[1] >= player_position[1] or 0 in self.movement_dict):
-            self.move_to(dt, player_position, 150)
+        if not (self.pos[1] >= player_position[1] - 100 or 0 in self.movement_dict):
+            self.move_to(dt, player_position, 300)
         else:
             self.movement_dict.append(0)
-            self.move_to(dt, (self.pos[0], SCREEN_HEIGHT + 100), 150)
-            self.move_to(dt, player_position, 30)
+            self.move_to(dt, (self.pos[0], SCREEN_HEIGHT + 100), 300)
+            self.move_to(dt, player_position, 100)
 
         # bullets
-        if not (0 in self.bullet_dummy):
+        if not (0 in self.bullet_dummy) and self.pos[1] <= SCREEN_HEIGHT * (3/4):
             shot = ShotsFired(
                 dt = dt,
                 pos = (self.rect.centerx, self.rect.bottom),
@@ -301,7 +300,7 @@ class PopcornBunny(Enemy):
             self.bullet_dummy.append(0)
 
         if 0 in self.bullet_dummy:
-            cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 200)
+            cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
             if cooldown:
                 
                 print(True)
@@ -310,8 +309,3 @@ class PopcornBunny(Enemy):
         
         for shot in self.shot_dict:
             shot.update(self.dt)
-
-
-
-
-            

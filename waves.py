@@ -41,7 +41,7 @@ class Wave1_1(Wave):
             PopcornBunny(
                 pos=(SPAWN_LANE3, 0), 
                 dt=dt, 
-                groups=[groups[0], groups[1]],
+                groups=[groups[0], groups[1], self.enemy_sprites0],
                 movement_switch1 = True,
                 movement_switch2 = True 
                 )
@@ -51,7 +51,7 @@ class Wave1_1(Wave):
             PopcornBunny(
                 pos=(SPAWN_LANE1, 0), 
                 dt=dt, 
-                groups=[groups[0], groups[1]],
+                groups=[groups[0], groups[1], self.enemy_sprites0],
                 movement_switch1 = True,
                 movement_switch2 = True 
                 )
@@ -61,7 +61,7 @@ class Wave1_1(Wave):
             PopcornBunny(
                 pos=(SPAWN_LANE5, 0), 
                 dt=dt, 
-                groups=[groups[0], groups[1]],
+                groups=[groups[0], groups[1], self.enemy_sprites0],
                 movement_switch1 = True,
                 movement_switch2 = True 
                 )
@@ -71,7 +71,7 @@ class Wave1_1(Wave):
             PopcornBunny(
                 pos=(SPAWN_LANE2, 0), 
                 dt=dt, 
-                groups=[groups[0], groups[1]],
+                groups=[groups[0], groups[1], self.enemy_sprites0],
                 movement_switch1 = True,
                 movement_switch2 = True 
                 )
@@ -81,11 +81,40 @@ class Wave1_1(Wave):
             PopcornBunny(
                 pos=(SPAWN_LANE4, 0), 
                 dt=dt, 
-                groups=[groups[0], groups[1]],
+                groups=[groups[0], groups[1], self.enemy_sprites0],
                 movement_switch1 = True,
                 movement_switch2 = True                
                 )
             enemy_dummy.append(4)
         
-        for enemy in groups[1]:
+        for enemy in self.enemy_sprites0:
+            enemy.ai0(dt, groups, enemy.movement_switch1, enemy.movement_switch2)
+
+        if current_time >= 100 and (5 not in enemy_dummy):
+            PopcornBunny(
+                pos=(SPAWN_LANE2, 0), 
+                dt=dt, 
+                groups=[groups[0], groups[1], self.enemy_sprites1]                
+                )
+            enemy_dummy.append(5)
+
+        if current_time >= 110 and (6 not in enemy_dummy):
+            PopcornBunny(
+                pos=(SPAWN_LANE2, 0), 
+                dt=dt, 
+                groups=[groups[0], groups[1], self.enemy_sprites1],              
+                )
+            enemy_dummy.append(6)
+        
+        if current_time >= 120 and (7 not in enemy_dummy):
+            PopcornBunny(
+                pos=(SPAWN_LANE2, 0), 
+                dt=dt, 
+                groups=[groups[0], groups[1], self.enemy_sprites1],
+                movement_switch1 = True,
+                movement_switch2 = True                
+                )
+            enemy_dummy.append(7)
+
+        for enemy in self.enemy_sprites1:
             enemy.ai1(dt, groups)
