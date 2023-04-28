@@ -132,3 +132,8 @@ if the Level isn't loaded.
 
 3.
 Moved slowdown to Level, but spawning is still quite janky. I'll remove everything related to slowdown to keep things clean.
+
+The next thing I want to do before continuing is creating a visible hitbox for the player that overlaps the sprite.
+I want a new sprite anyway, so I'll be updating the Player class in general.
+I'll try adding a new enemy as well. 
+I wonder if creating a mask for the enemy sprites will be too much when checking for collision...  
