@@ -138,7 +138,7 @@ class Enemy(pg.sprite.Sprite):
         self.update_timestep(dt)
         self.kill_at_border()
     
-class PopcornBunny(Enemy):
+class PopcornBird(Enemy):
     def __init__(
         self, 
         pos: tuple, 
@@ -155,6 +155,10 @@ class PopcornBunny(Enemy):
                 direction=(0,1),
                 health=5,
                 **movement_switch)
+        
+        self.image = pg.image.load('graphics/sprites/enemies/PopcornBird.png')
+        self.image = pg.transform.scale(self.image, (64, 64))
+        self.rect = self.image.get_rect(center = pos)
         
         # spawn dummies
         self.shot_dict = []
