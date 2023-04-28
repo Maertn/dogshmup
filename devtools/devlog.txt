@@ -136,4 +136,22 @@ Moved slowdown to Level, but spawning is still quite janky. I'll remove everythi
 The next thing I want to do before continuing is creating a visible hitbox for the player that overlaps the sprite.
 I want a new sprite anyway, so I'll be updating the Player class in general.
 I'll try adding a new enemy as well. 
-I wonder if creating a mask for the enemy sprites will be too much when checking for collision...  
+I wonder if creating a mask for the enemy sprites will be too much when checking for collision...
+
+4. 
+Something funny happens in the current build. If the player sprite moves above the first wave of birds the birds glitch out and won't 
+move out of the screen.
+
+5.
+I think I fixed AI bugging out. Feels like a rite of initiation in game programming to fix a simple AI you thought would just work. 
+The composite movement of moving down and slowly moving towards the player makes it so that the spatial triggers 
+for the next movement aren't met. I've the movement towards the player in an if statement that checks if the player position isn't
+higher than the enemies, so that the adjustment towards player position doesn't subtract from the downward motion. It seems to work, and
+the movement doesn't look too janky as far as I can tell.
+
+One thing I've noticed is that the player can manipulate the trajectory of the enemies by positioning themselves in such a way that
+the trajectory becomes longest, thus having the enemies on screen for a longer time. This is an aspect of player freedom that could
+negate some choices made in level design. Accidentally keeping enemies on the screen for a long time could create unbeatable patterns at a
+certain point. I don't know how to design around this, so it's just something I'll have to keep in the back of my mind and see if it
+becomes a problem.
+  

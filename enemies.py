@@ -37,7 +37,7 @@ class Enemy(pg.sprite.Sprite):
 
         # creating motion attributes
         self.speed = speed
-        self.direction = direction
+        self.direction = pg.math.Vector2(direction).normalize()
         self.pos = [self.hitbox.centerx, self.hitbox.centery]
 
         # creating motion switches
@@ -258,8 +258,10 @@ class PopcornBird(Enemy):
         # movement
         if self.pos[1] <= destination[1] and self.movement_switch1 == True:
             self.move_to(dt, destination, 100)
-            self.move_to(dt, player_position, 20)
+            if self.pos[1] <= player_position[1]:
+                self.move_to(dt, player_position, 20)
             if self.pos[1] + (self.direction[1] * self.speed * dt) >= destination[1] - (self.direction[1] * self.speed * dt):
+                print('Ok')
                 self.movement_dict.append(self.current_time)
                 self.movement_switch1 = False
         elif self.movement_switch1 == False and self.movement_switch2 == True:
@@ -276,7 +278,7 @@ class PopcornBird(Enemy):
         
         if (0 in self.bullet_dummy) and (1 not in self.bullet_dummy):
             shot = ShotsFired(
-                dt = self.dt,
+                dt = dt,
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 200,
@@ -327,10 +329,8 @@ class PopcornBird(Enemy):
         if 0 in self.bullet_dummy:
             cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
             if cooldown:
-                
-                print(True)
                 self.bullet_spawn.pop()
                 self.bullet_dummy.pop()
         
         for shot in self.shot_dict:
-            shot.update(self.dt)
+            shot.update(dt)
