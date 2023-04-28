@@ -24,7 +24,8 @@ class Level():
 
         self.list_of_sprite_groups = [
             self.visible_sprites,
-            self.enemy_sprites
+            self.enemy_sprites,
+            self.enemy_bullet_sprites
         ]
         
         # setup wave spawning
@@ -32,7 +33,7 @@ class Level():
 
         # spawn player
         self.spawn_player(self.dt)
-   
+    
     def update_timestep(self, dt):
         self.dt = dt
 
@@ -58,6 +59,6 @@ class Level():
     def run(self, dt):
         self.update_timestep(dt)
         self.update_current_time(dt, self.spawn_time)
-        self.spawn_wave(dt)
+        self.spawn_wave(self.dt)
         self.visible_sprites.draw(self.display_surface)
-        self.visible_sprites.update(dt)
+        self.visible_sprites.update(self.dt)

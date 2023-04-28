@@ -20,7 +20,6 @@ class MainMenu:
         if keys[pg.K_RETURN]:
             return 0
         
-
     def run(self):
         self.show_main_menu_text()
         self.start_run()

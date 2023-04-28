@@ -19,17 +19,12 @@ class Game:
         self.clock = pg.time.Clock()
         self.previous_time = time.time()
         self.dt = 0
-        
+
         # setting initial state
         self.state = 'mainmenu'
         self.menu_active = 0 
         self.level_active = 0
     
-    def slowdown(self, dt):
-        keys = pg.key.get_pressed()
-        if keys[pg.K_LCTRL]:
-            self.dt = dt / 2 
-
     def run(self):
         while True:
             # draw empty screen
@@ -38,8 +33,6 @@ class Game:
             # create a timestep
             self.dt = time.time() - self.previous_time
             self.previous_time = time.time()
-
-            self.slowdown(self.dt)
 
             # create exit protocol
             for event in pg.event.get():

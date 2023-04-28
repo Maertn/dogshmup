@@ -149,6 +149,6 @@ class ShotsFired:
                 EnemyBullet(dt, self.pos, self.groups, self.speed, direction)
             self.shot_switch = False
 
-    def update(self,dt):
+    def update(self, dt):
         self.update_timestep(dt)
         self.shoot(dt)

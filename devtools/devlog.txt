@@ -104,4 +104,31 @@ Another condition would be distance to the lower border, so that enemies scrolli
 player, making for too rough a punishment on the player after leaving an enemy alive.
 
 I'll need some food, a walk with the dog, and I'll work on the AI some more tomorrow. When it comes to planning what to do next, I think I
-can continue along these lines. Creating new enemies, developing existing ones further with sprites and stuff, and designing spawn patterns
+can continue along these lines. Creating new enemies, developing existing ones further with sprites and stuff, and designing spawn patterns.
+
+2023-04-28
+1.
+Finished an enemy, the PopcornBird, gave it two AI, and gave it sprite animation.
+It's basic, but functional, and I think it looks okay.
+
+I tried to create a slowdown, but it interferes with the spawn timers.
+This is because I simply cut dt in half, but the spawning is done through pg.time.get_ticks() * dt.
+So if we restore dt, the spawning will restore to a state as if no slowdown has occured.
+I can try to fix this through collecting the time that slowdown occured in main and passing it along to level and waves.
+I can also try to rewrite current_time in the level in such a way that it accumaltes with instances of pg.time.get_ticks * dt. 
+
+2. 
+Implemented the slowdown where the total slowdown time is accumulated in a list and passed along to level and waves.
+I think it works, but I've noticed some jank when it comes to the accumulated time. This is because the slowdown time is multiplied
+with dt, and dt is actually variable over time, so the values don't add up exactly. It quite minor though, as far as I can tell. 
+I've messed around with different places to do the dt multiplication, and I've settles on the one that seems to be least janky.
+
+The problem with the slowdown is that it's really effective. You can keep the slowdown pressed down, and it'll prevent enemies from spawning.
+This makes the game way too easy to play, so I might remove it at a later point. 
+I could also create an attribute of the player which has to be spent in order to activate the slowdown. I'll have to drag that attribute
+all the way back to main though, somehow. 
+I could actually also move the slowdown into Level. I can't think of a reason why I shouldn't, since slowdown isn't a useful feature 
+if the Level isn't loaded.
+
+3.
+Moved slowdown to Level, but spawning is still quite janky. I'll remove everything related to slowdown to keep things clean.

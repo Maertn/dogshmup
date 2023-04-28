@@ -6,7 +6,7 @@ class Wave:
     def __init__(self, groups, dt):
         # time attr
         self.dt = dt
-        self.spawn_time = pg.time.get_ticks() * dt
+        self.spawn_time = (pg.time.get_ticks() * dt)
         self.current_time = 0
         
         # sprite group attr
@@ -114,6 +114,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True                
                 )
             enemy_dummy.append(7)
+            print('1',True)
 
         for enemy in self.enemy_sprites1:
             enemy.ai1(dt, groups)
