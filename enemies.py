@@ -133,10 +133,14 @@ class Enemy(pg.sprite.Sprite):
         if self.current_time - call_time >= cooldown * dt:
             return True
 
+    def animate(self):
+        pass
+
     def update(self, dt):
         self.update_current_time(dt, self.spawn_time)
         self.update_timestep(dt)
         self.kill_at_border()
+        self.animate()
     
 class PopcornBird(Enemy):
     def __init__(
@@ -156,9 +160,15 @@ class PopcornBird(Enemy):
                 health=5,
                 **movement_switch)
         
-        self.image = pg.image.load('graphics/sprites/enemies/PopcornBird.png')
+        self.image = pg.image.load('graphics/sprites/enemies/popcornbird/sprite_0.png')
         self.image = pg.transform.scale(self.image, (64, 64))
         self.rect = self.image.get_rect(center = pos)
+        self.frame_index = 0
+        self.animation_speed = 0.1
+        self.animations = [
+            pg.image.load('graphics/sprites/enemies/popcornbird/sprite_0.png'), 
+            pg.image.load('graphics/sprites/enemies/popcornbird/sprite_1.png')
+            ]
         
         # spawn dummies
         self.shot_dict = []
@@ -166,6 +176,17 @@ class PopcornBird(Enemy):
         self.bullet_spawn = []
 
         self.movement_dict = []
+
+    def animate(self):
+
+        animation = self.animations	
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+
+        self.image = animation[int(self.frame_index)]
+        self.image = pg.transform.scale(self.image, (64, 64))
+        self.rect = self.image.get_rect(center = self.pos)
 
     def ai_test(self, dt, groups):
         """This AI accelerates into the screen untill 1/4th. 
@@ -247,7 +268,7 @@ class PopcornBird(Enemy):
             if cooldown:
                 self.movement_switch2 = False
         elif self.movement_switch1 == False and self.movement_switch2 == False:
-            self.move_to(dt, (self.pos[0], -100), 200)
+            self.move_to(dt, (self.pos[0], -200), 200)
 
         # bullets
         if self.pos[1] >= SCREEN_HEIGHT * (1/3) and (0 not in self.bullet_dummy):

@@ -61,4 +61,3 @@ class Level():
         self.spawn_wave(dt)
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update(dt)
-        print(self.enemy_bullet_sprites)
