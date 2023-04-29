@@ -28,6 +28,7 @@ class Wave:
         self.update_timestep(dt)
         self.update_time(dt, self.spawn_time)
         self.spawn_enemies(self.groups, self.current_time, self.dt)
+        print(self.current_time)
 
 
 class Wave1_1(Wave):
@@ -45,6 +46,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True 
                 )
             enemy_dummy.append(0)
+            # print('1', current_time, self.current_time)
         
         if current_time >= 15 and (1 not in enemy_dummy):
             PopcornBird(
@@ -55,6 +57,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True 
                 )
             enemy_dummy.append(1)
+            # print('2', current_time, self.current_time)
         
         if current_time >= 30 and (2 not in enemy_dummy):
             PopcornBird(
@@ -65,6 +68,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True 
                 )
             enemy_dummy.append(2)
+            # print('3', current_time, self.current_time)
         
         if current_time >= 45 and (3 not in enemy_dummy):
             PopcornBird(
@@ -75,6 +79,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True 
                 )
             enemy_dummy.append(3)
+            # print('4', current_time, self.current_time)
 
         if current_time >= 60 and (4 not in enemy_dummy):
             PopcornBird(
@@ -85,6 +90,7 @@ class Wave1_1(Wave):
                 movement_switch2 = True                
                 )
             enemy_dummy.append(4)
+            # print('5', current_time, self.current_time)
         
         for enemy in self.enemy_sprites0:
             enemy.ai0(dt, groups, enemy.movement_switch1, enemy.movement_switch2)
@@ -114,7 +120,6 @@ class Wave1_1(Wave):
                 movement_switch2 = True                
                 )
             enemy_dummy.append(7)
-            print('1',True)
 
         for enemy in self.enemy_sprites1:
             enemy.ai1(dt, groups)

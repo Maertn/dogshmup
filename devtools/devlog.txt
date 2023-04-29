@@ -154,4 +154,38 @@ the trajectory becomes longest, thus having the enemies on screen for a longer t
 negate some choices made in level design. Accidentally keeping enemies on the screen for a long time could create unbeatable patterns at a
 certain point. I don't know how to design around this, so it's just something I'll have to keep in the back of my mind and see if it
 becomes a problem.
-  
+
+2023-04-29
+1.
+I've noticed a very ugly bug in the enemy spawning, where print(self.current_time) in waves results in the following output: 
+18.566758632659912
+19.83906602859497
+20.803293704986572
+21.168715238571167
+19.572134017944336
+19.810706853866577
+20.065688610076904
+22.15120267868042
+20.851157903671265
+22.076955556869507
+22.454861164093018
+22.468857049942017
+23.727485179901123
+22.772170543670654
+22.213569164276123
+
+This is the result of declaring self.current_time = (pg.time.get_ticks() * dt) - self.spawn_time, with dt being variable.
+So we're taking all the elapsed time, and multiplying it with a variable factor, which causes output like: 
+18, 18, 19, 20, 21, 19, 19, 20, 22, 23, 22, etc. It's a mess, and my spawning is reliant on this mess...
+Also, the error becomes larger as the number of ticks grows larger. So I'm glad I'm catching it now, but it sucks to have to come back
+to these fundamentals over and over again.
+
+The probable solution is to recreate dt in level, waves and enemies, basically every class that spawns on timers, 
+and have every dt add to current_time in their respective class. That at least keeps the timer from producing negative times.
+
+I can't fix it right now, since I forgot the power cable for my laptop, and the batteries aren't all that great. I'll just push as is, and
+probably continue tomorrow. I did finish what I set out to make, which is a hitbox, and a new player sprite with animation that follows the
+position of the hitbox. I'm sure I can improve on the animation, but it looks kind of cute as is.
+
+Next steps are fixing the time in the spawning classes, adding sprites for bullets, coding player bullets and collision, and it might
+be cool to already have indicator sprites that bullets are hitting enemy hitboxes as well as sprites for explosions.
