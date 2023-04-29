@@ -189,3 +189,11 @@ position of the hitbox. I'm sure I can improve on the animation, but it looks ki
 
 Next steps are fixing the time in the spawning classes, adding sprites for bullets, coding player bullets and collision, and it might
 be cool to already have indicator sprites that bullets are hitting enemy hitboxes as well as sprites for explosions.
+
+2.
+Just logging a small celebration. All my code and setup is on the laptop, but I wanted to try adding a fix for the spawning on my desktop.
+I've installed git, cloned my repository, added a fix for the spawns, and pushed the update back to git, without too much effort. It's nice
+to notice some progress in skill.
+
+Fixing current_time changed the scale of things, so I'll have to adjust constants. I want to implement the same fix in all spawning classes,
+so I'll have some tweaking of numbers to do tomorrow. I'm glad I caught this in time.
