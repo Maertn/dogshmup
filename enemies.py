@@ -33,6 +33,7 @@ class Enemy(pg.sprite.Sprite):
         # grabbing initial timestep and spawn time
         self.dt = dt
         self.spawn_time = pg.time.get_ticks() * dt
+        self.current_time_dummy = []
         self.current_time = 0
 
         # creating motion attributes
@@ -65,8 +66,9 @@ class Enemy(pg.sprite.Sprite):
     def update_timestep(self, dt):
         self.dt = dt
 
-    def update_current_time(self, dt, spawn_time):
-        self.current_time = (pg.time.get_ticks() * dt) - spawn_time 
+    def update_current_time(self):
+        self.current_time_dummy.append(self.dt)
+        self.current_time = sum(self.current_time_dummy)
 
     def move(self, dt):
         direction = pg.math.Vector2(self.direction).normalize()
@@ -137,8 +139,8 @@ class Enemy(pg.sprite.Sprite):
         pass
 
     def update(self, dt):
-        self.update_current_time(dt, self.spawn_time)
         self.update_timestep(dt)
+        self.update_current_time()
         self.kill_at_border()
         self.animate()
     
@@ -266,7 +268,7 @@ class PopcornBird(Enemy):
                 self.movement_switch1 = False
         elif self.movement_switch1 == False and self.movement_switch2 == True:
             self.move_to(dt, player_position, 20)
-            cooldown = self.create_cooldown(self.dt, self.movement_dict[0], 1500)
+            cooldown = self.create_cooldown(dt, self.movement_dict[0], 300)
             if cooldown:
                 self.movement_switch2 = False
         elif self.movement_switch1 == False and self.movement_switch2 == False:
@@ -291,7 +293,7 @@ class PopcornBird(Enemy):
             self.bullet_dummy.append(1)
 
         if 1 in self.bullet_dummy:
-            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
+            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 250)
             if cooldown:
                 self.bullet_spawn.pop()
                 self.bullet_dummy.pop()
@@ -327,7 +329,7 @@ class PopcornBird(Enemy):
             self.bullet_dummy.append(0)
 
         if 0 in self.bullet_dummy:
-            cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
+            cooldown = self.create_cooldown(self.dt, self.bullet_spawn[0], 250)
             if cooldown:
                 self.bullet_spawn.pop()
                 self.bullet_dummy.pop()

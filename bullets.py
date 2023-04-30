@@ -17,13 +17,15 @@ class Bullet(pg.sprite.Sprite):
         # time attributes
         self.dt = dt
         self.spawn_time = pg.time.get_ticks() * dt
+        self.current_time_dummy = []
         self.current_time = 0
 
     def update_timestep(self, dt):
         self.dt = dt
 
-    def update_current_time(self, dt):
-        self.current_time = (pg.time.get_ticks() * dt) - self.spawn_time
+    def update_current_time(self):
+        self.current_time_dummy.append(self.dt)
+        self.current_time = sum(self.current_time_dummy)
 
     # Linear movement of bullets
     def move(self, dt):
@@ -63,7 +65,7 @@ class EnemyBullet(Bullet):
         self.rect = self.image.get_rect(center = pos)
         self.color = 'white'
         self.speed = speed
-        self.direction = direction
+        self.direction = pg.math.Vector2(direction).normalize()
         self.dt = dt
         
 
@@ -75,7 +77,7 @@ class EnemyBullet(Bullet):
 
     def update(self, dt):
         self.update_timestep(dt)
-        self.update_current_time(dt)
+        self.update_current_time()
         self.move(dt)
         self.remove_bullet()
         self.color_bullet()

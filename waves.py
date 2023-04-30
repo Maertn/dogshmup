@@ -6,7 +6,6 @@ class Wave:
     def __init__(self, groups, dt):
         # time attr
         self.dt = dt
-        self.spawn_time = (pg.time.get_ticks() * dt)
         self.current_time_dummy = []
         self.current_time = 0
         
@@ -19,10 +18,9 @@ class Wave:
         self.dt = dt
         # print(self.dt)
 
-    def update_time(self):
+    def update_current_time(self):
         self.current_time_dummy.append(self.dt)
         self.current_time = sum(self.current_time_dummy)
-        print(self.current_time)
     
     def spawn_enemies(self, groups, current_time, dt, enemy_dummy=[]):
         pass
@@ -30,7 +28,7 @@ class Wave:
 
     def run(self, dt):
         self.update_timestep(dt)
-        self.update_time()
+        self.update_current_time()
         self.spawn_enemies(self.groups, self.current_time, self.dt)
 
 

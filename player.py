@@ -72,9 +72,9 @@ class Player(pg.sprite.Sprite):
 
     def update(self, dt):
         self.update_timestep(dt)
-        self.animate_hitbox()
         self.keylog()
         self.move(dt)
+        self.animate_hitbox()
 
 
 
