@@ -197,3 +197,15 @@ to notice some progress in skill.
 
 Fixing current_time changed the scale of things, so I'll have to adjust constants. I want to implement the same fix in all spawning classes,
 so I'll have some tweaking of numbers to do tomorrow. I'm glad I caught this in time.
+
+3.
+Noticed another bug, with the aim of enemies being off.
+I've looked all over the code, and eventually found that the spawning point of the bullet is used in the aiming of the shot, instead of the
+center of the enemy, as intended. What's weird is that if I enter other attributes in the spawning of the bullet through self.* Python looks
+in the enemy, not the bullet. Maybe there's a hierarchy that's being searched.
+Anyway, if I set the spawning point in the center of the enemy the trajectory of the bullet goes straight through the player hitbox, as intended.
+It's a bummer if I can't spawn bullets from the beak of the bird enemies, so I've altered the point that's being aimed at. I thought it'd be a 
+somewhat reasonable assumption to have the adjustment in target be equal to the offset between center of enemy and spawning point, but it 
+turns out that this isn't true. In this case it turns out that 2*offset is the right adjustment. Intuitively this feels like ducttape.
+The most thorough way to do away with this problem (without rewriting the code for aiming) is to delegate bullet spawning to emitter sprites 
+within the enemy.      
