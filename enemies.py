@@ -123,10 +123,10 @@ class Enemy(pg.sprite.Sprite):
     def ai(self, dt, groups):
         pass
 
-    def aim_bullet(self, destination):
-        distance = math.sqrt(pow((self.pos[0] - destination[0]), 2) + pow((self.pos[1] - destination[1]), 2))
-        directionx = (destination[0] - self.pos[0])/distance
-        directiony = (destination[1] - self.pos[1])/distance
+    def aim_bullet(self, pos, destination):
+        distance = math.sqrt(pow((pos[0] - destination[0]), 2) + pow((pos[1] - destination[1]), 2))
+        directionx = (destination[0] - pos[0])/distance
+        directiony = (destination[1] - pos[1])/distance
         direction = pg.math.Vector2(directionx, directiony)
         return direction
 
@@ -285,7 +285,7 @@ class PopcornBird(Enemy):
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 200,
-                direction = self.aim_bullet((player_position[0], player_position[1] - 34)),
+                direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
                 number_of_bullets = 1,
                 spread = 1/10
                 )
@@ -321,7 +321,7 @@ class PopcornBird(Enemy):
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 500,
-                direction = self.aim_bullet((player_position[0], player_position[1] - 34)),
+                direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
                 number_of_bullets = 1,
                 spread = 1
                 )
