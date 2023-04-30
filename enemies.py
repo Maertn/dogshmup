@@ -177,6 +177,7 @@ class PopcornBird(Enemy):
         self.bullet_dummy = []
         self.bullet_spawn = []
 
+        # dummy for registering times for movement
         self.movement_dict = []
 
     def animate(self):
@@ -284,7 +285,7 @@ class PopcornBird(Enemy):
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 200,
-                direction = self.aim_bullet((player_position[0], player_position[1] - 40)),
+                direction = self.aim_bullet((player_position[0], player_position[1] - 34)),
                 number_of_bullets = 1,
                 spread = 1/10
                 )
@@ -320,7 +321,7 @@ class PopcornBird(Enemy):
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 500,
-                direction = self.aim_bullet((player_position[0], player_position[1] - 40)),
+                direction = self.aim_bullet((player_position[0], player_position[1] - 34)),
                 number_of_bullets = 1,
                 spread = 1
                 )
