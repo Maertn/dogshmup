@@ -208,4 +208,24 @@ It's a bummer if I can't spawn bullets from the beak of the bird enemies, so I'v
 somewhat reasonable assumption to have the adjustment in target be equal to the offset between center of enemy and spawning point, but it 
 turns out that this isn't true. In this case it turns out that 2*offset is the right adjustment. Intuitively this feels like ducttape.
 The most thorough way to do away with this problem (without rewriting the code for aiming) is to delegate bullet spawning to emitter sprites 
-within the enemy.      
+within the enemy.
+
+2023-04-30
+1.
+I've implemented bullet sprites. I want the hurtbox for the bullet to be significantly smaller than the actual sprite, which caused some issues.
+I think I have working code right now, but the bullet sprites will always have to be 32x32 (empty space is allowed ofc), and the hurtbox will
+always be 12x12.
+The type of bullet sprite to be spawned will have to be stated with the spawning of bullets, either through ShotsFired or EnemyBullet. 
+My sprite folders must reflect the name of the bullet type.
+A cool feature of the bullet sprites is that they rotate towards the bullet trajectory. A pointy bullet aimed at the player will visually reflect this.
+This is all done upon spawning, so if a class of bullets is created that change their direction after spawning, I'll also have to write a method
+so that the bullet sprites can be updated with these changes.
+
+I've created a first sprite, and I though it'd be a good idea to have a brighter color bullet so it would jump out from the other sprites.
+Either I made it too bright, or I should stick with the colors that I have, because it looks like shit tbh.
+What I do like is the animation for the bullet, with a line traveling from left to right.
+What I dislike is the shape. It's basically an elipse with two pointy ends on the top and bottom. The shape of the top creates a somewhat weird
+visual when the sprite is rotated. Back to the drawing board for the sprites.
+
+(edit: changing the spawning position of the bullet with -10 fixed the weird visual where a bullet would seem to spawn a bit right of center,
+so that wasn't the sprites' fault.)

@@ -9,6 +9,8 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load('graphics/sprites/player/hitbox_sprite_0.png').convert_alpha()
         self.image = pg.transform.scale(self.image, (10, 10))
         self.rect = self.image.get_rect(center = pos)
+        
+        # animation attributes
         self.frame_index = 0
         self.animation_speed = 0.1
         self.animations = [

@@ -124,6 +124,10 @@ class Enemy(pg.sprite.Sprite):
         pass
 
     def aim_bullet(self, pos, destination):
+        # correction for position, since bullets rect size changes after aiming
+        pos = (pos[0]+10, pos[1]+10)
+        
+        # calculate vector from spawn point to player
         distance = math.sqrt(pow((pos[0] - destination[0]), 2) + pow((pos[1] - destination[1]), 2))
         directionx = (destination[0] - pos[0])/distance
         directiony = (destination[1] - pos[1])/distance
@@ -264,7 +268,6 @@ class PopcornBird(Enemy):
             if self.pos[1] <= player_position[1]:
                 self.move_to(dt, player_position, 20)
             if self.pos[1] + (self.direction[1] * self.speed * dt) >= destination[1] - (self.direction[1] * self.speed * dt):
-                print('Ok')
                 self.movement_dict.append(self.current_time)
                 self.movement_switch1 = False
         elif self.movement_switch1 == False and self.movement_switch2 == True:
@@ -282,12 +285,13 @@ class PopcornBird(Enemy):
         if (0 in self.bullet_dummy) and (1 not in self.bullet_dummy):
             shot = ShotsFired(
                 dt = dt,
-                pos = (self.rect.centerx, self.rect.bottom),
+                pos = (self.pos[0] - 10, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 200,
                 direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
                 number_of_bullets = 1,
-                spread = 1/10
+                spread = 1/10,
+                type = 'type1'
                 )
             self.shot_dict.append(shot)
             self.bullet_spawn.append(self.current_time)
@@ -323,7 +327,8 @@ class PopcornBird(Enemy):
                 speed = 500,
                 direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
                 number_of_bullets = 1,
-                spread = 1
+                spread = 1,
+                type = 'type1'
                 )
             self.shot_dict.append(shot)
             self.bullet_spawn.append(self.current_time)
