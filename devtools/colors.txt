@@ -1,6 +1,10 @@
+# oil6 by grafxkid
 fbf5ef
 f2d3ab
 c69fa5
 8b6d9c
-494d7e
+494d7e (background)
 272744
+
+#hitboxsprite
+fb8ffb (very pink)

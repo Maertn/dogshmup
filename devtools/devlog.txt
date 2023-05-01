@@ -229,3 +229,5 @@ visual when the sprite is rotated. Back to the drawing board for the sprites.
 
 (edit: changing the spawning position of the bullet with -10 fixed the weird visual where a bullet would seem to spawn a bit right of center,
 so that wasn't the sprites' fault.)
+(edit2: another improvement upon the sprites would be to create them on a 16x16 bitmap in piskel, and save them as 32x32, to reflect the inflated sprites
+from the enemies and player.)

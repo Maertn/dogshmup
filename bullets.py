@@ -13,6 +13,7 @@ class Bullet(pg.sprite.Sprite):
         self.direction = direction
         self.speed = speed
         self.pos = pg.math.Vector2(self.rect.center)
+        self.groups = groups
         
         # time attributes
         self.dt = dt
@@ -68,6 +69,7 @@ class EnemyBullet(Bullet):
         self.speed = speed
         self.direction = pg.math.Vector2(direction).normalize()
         self.dt = dt
+        self.initial_position = pos
         
         # animation attributes
         self.animations = []
@@ -86,6 +88,7 @@ class EnemyBullet(Bullet):
             ] 
             
     def animate_sprite(self):
+        player_position = self.groups[0].sprites()[0].position
         animation = self.animations	
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
@@ -94,8 +97,7 @@ class EnemyBullet(Bullet):
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center = self.pos)
         self.rect = self.rect.inflate((-20, -20))
-        self.image = pg.transform.rotate(self.image, math.degrees(math.atan(self.direction[0] / self.direction[1])))
-        
+        self.image = pg.transform.rotate(self.image, math.degrees(math.atan2(self.direction[0], self.direction[1])))
 
     def move(self, dt):
         self.pos.x += self.direction[0] * self.speed * dt
