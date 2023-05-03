@@ -231,3 +231,86 @@ visual when the sprite is rotated. Back to the drawing board for the sprites.
 so that wasn't the sprites' fault.)
 (edit2: another improvement upon the sprites would be to create them on a 16x16 bitmap in piskel, and save them as 32x32, to reflect the inflated sprites
 from the enemies and player.)
+
+2023-05-02
+1.
+I want to start implementing complex motion for bullets. I think I know how I want to achieve this.
+I'll add a method to bullets that needs to be called if I want to start a motion that is described through polar coordinates.
+
+The movement in polar coordinates is composed of a delta radius and a delta phi. Delta radius and delta phi form some sort of ratio, where
+if delta radius = 0 but delta phi != 0 we get a purely circular motion. 
+The reverse, delta radius != 0 and delta phi = 0, gives a purely linear motion.  
+
+I can think of two types of methods. 
+One accepts dr and dphi as arguments. Let's call it the delta method.
+dr and dphi are calculated to produce a direction that is stored in an attribute of the bullet.
+The direction will then be passed along to the move() method.
+
+The other method works as move_to() in Enemy, where a coordinate is given as the argument. Let's call it the move_to method.
+We'll need the spawning position of the bullet as an attribute, and declare the trajectory as one or a sequence of calls to this method.
+So let's say we want a sequence of three different motions for the bullets: 
+1, (0,0) -> (10,0), which is movement in a straight line,
+2, (10,0) -> (10, 4*pi), which circles around the spawning position 2 times,
+3, (10, 4*pi) -> (inf, inf), which makes a spiraling motion.
+The only way I think this could work is if upon spawning the bullet creates a list composed of direction * speed * dt, and executes the
+delta method to determine the next item in the list. 
+
+This is some pseudo code for polar_move_to:
+polar_move_to_dict(initial_position = (0,0), destination = (10, pi/2)):
+    dr_total = destination[0] - initial_position[0]
+    dphi_total = destination[1] - initial_position[1]
+    number_of_steps = length_of_path / (speed * dt)
+    list_of_steps = list(range(0, numer_of_steps))
+    movement_dict = {}
+    for step in list_of_steps:
+        movement_dict[step] = delta_method
+
+polar_move_to():
+    dict = polar_move_to_dict()
+    k = 0
+    if k < number_of_steps:
+        self.direction = dict[k]
+
+I'm not sure if this really makes sense. I've been trying to understand this for a few hours on end now. I think I'll take a break.
+
+I think I should start by creating a function that interprets the polar coordinates and executes a move_to function.
+Once I have that I can refine the execution and split the motion in smaller changes of direction to create the circular motion.
+
+2023-05-03
+1.
+This has been really challenging. I've created a function that interprets polar coordinates, calculates the point, and chooses the shortest distance
+towards that point. Theoretically I could expand on that, and split the path into steps, with the direction updating at each step to create a smooth
+circular motion.
+The problem with this is that dt is variable, so it wouldn't do to have a list of steps generated during a single dt. It's bound to be inaccurate
+compared to the actual motion.
+
+Another thing that I tried was to update the direction by specifying the tangent along the circle. I've researched some trigonometry and eventually
+came up with this:
+self.direction = pg.math.Vector2(((-(self.pos[1] - origin[1]) / radius) * self.dt), (((self.pos[0] - origin[0]) / radius) * self.dt)).normalize()
+It works, kind of. There are two problems with this method.
+1; The motion isn't smooth. The bullet seems to slow down at specific points in space, which is odd, since self.direction should be a unit vector and
+self.speed remains constant throughout. I'm not sure why this happens. This might have to do with the function not being continuous at 
+a certain derivative, but my math isn't good enough to figure this one out by myself. I might ask the internet at a certain point.
+2; The other problem is that the trajectory isn't exactly accurate. The object seems to drift, and given enough cycles we can see a 
+displacement that shouldn't occur if the radius is a constant. This becomes especially obvious at high velocities. 
+The code uses the current position of the object to determine the direction, so I can imagine that the error creeps in through this variable, 
+adding up over time. This could be fixed if the position of the object was checked against a predetermined path.
+
+I'm glad that I managed to get this far, but it won't do when it comes to creating a fun bullethell. That drift on the bullet makes them unpredictable,
+which is the worst quality a bullet in a bullethell can have.
+
+I think I sort of understand how to create an accurate method.
+I should declare the necessary variables to describe points along a circle, using polar coordinates z = r(cos(theta) + i sin(theta)).
+I'll declare a delta_phi, and have the method compute the next point along the circle as a function of delta_phi.
+This creates a coordinate that should be on the circumference. This coordinate is passed along as a destination.
+Every tick the method updates the current position of the player, checks the position against the circumference,
+and updates the destination.
+I might want to disable the linear motion that is always active in bullet.update(), to have a less confusing time maybe.  
+
+It has been a janky process so far, but I think it needs to get worse before it gets better. I'm wondering how the angular velocity and the
+linear velocity of the bullet will interact. We'll see if this works out. Here are some sources that I can use to implement this:
+https://www.javatpoint.com/defining-a-circle-using-polar-coordinates
+https://gamedev.stackexchange.com/questions/55045/pygame-circular-motion-with-bresenhams-algorithm
+https://en.wikipedia.org/wiki/Rotation_matrix
+
+One last note I'd like to add is that I don't agree with this bullet sprite either. The color is off, and the sprite is a bit too big.

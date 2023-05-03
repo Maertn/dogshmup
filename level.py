@@ -54,7 +54,8 @@ class Level():
         if dummy:
             pass
         else:
-            wave = Wave1_1([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
+            wave = TestWavePolar([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
+            # wave = Wave1_1([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
             self.waves.append(wave)
             dummy.append(0)
             

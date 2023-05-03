@@ -1,7 +1,11 @@
 import pygame as pg
+import math
 
 from settings import *
 from enemies import Enemy, PopcornBird
+from bullets import EnemyBullet
+
+
 class Wave:
     def __init__(self, groups, dt):
         # time attr
@@ -31,6 +35,26 @@ class Wave:
         self.update_current_time()
         self.spawn_enemies(self.groups, self.current_time, self.dt)
 
+class TestWavePolar(Wave):
+    def __init__(self, groups, dt):
+        super().__init__(groups, dt)
+      
+    def spawn_enemies(self, groups, current_time, dt, enemy_dummy =[]):
+        if not enemy_dummy:
+            EnemyBullet(
+                dt=dt,
+                pos=(SCREEN_WIDTH/2 + 100, SCREEN_HEIGHT/2),
+                groups=[groups[1], groups[3]],
+                speed=250,
+                direction=(0,1),
+                type='type1'
+            )
+            enemy_dummy.append(0)
+        
+        for bullet in groups[3]:
+            
+            bullet.angular_move(100)
+                
 
 class Wave1_1(Wave):
     def __init__(self, groups, dt):
