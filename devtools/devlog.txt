@@ -314,3 +314,41 @@ https://gamedev.stackexchange.com/questions/55045/pygame-circular-motion-with-br
 https://en.wikipedia.org/wiki/Rotation_matrix
 
 One last note I'd like to add is that I don't agree with this bullet sprite either. The color is off, and the sprite is a bit too big.
+
+2023-05-04
+1.
+It's been a rough ride, but I have something that works.
+I've created a new class, CircularPath, which creates a number of points along the circumference of a circle.
+After loading the class into an attribute of bullet, the bullet will scroll through the points with a new method called move_path().
+Instead of adjusting direction towards that point, as was the plan, I've settled on directly updating the position to be equivalent to the coordinate
+on the path. Since we're updating directly the speed of the bullet doesn't reflect it's speed on the screen.
+The number of points created is correlated to bullet.speed, but this doesn't work that great. 
+This is partly because the length of the path traveled causes the number of points to be increased, requiring a corresponding increase in speed, 
+lest the time spent on the curve also doubles, effectively halving the speed if length of path is doubled. 
+The number of points and velocity have to be manually tweaked to mimic the actual speed of the bullet.
+
+The class is quite flexible in its usage tho. I can give the total movement along the circle in radians, and when the movement ends the bullet
+will reactivate its usual move() method to continue along the direction of the last point in the path. An angle of 4*pi will result in two
+circular motions, while an angle of 1/24 * pi will give a relatively small change in direction.
+I can also give a phase, so that if ShotsFired distributes 5 bullets along a circle, I can give all bullets the same path, but each with a phase
+that is relevant to their position. I haven't tried it out yet tho, and implementing this behaviour probably requires also passing along the
+direction of ShotsFired as part of the phase to prevent the bullets from teleporting into positions along the circumference. 
+
+There are several ways forward when it comes to creating polar movement for the bullets.
+- The first one is expanding on the new Path class, abstracting it to allow for custom functions like y = f(x) or parametric equations.
+I might be able to describe polar motion through those parametric equations, allowing for r and theta to be variable over time.
+- The second one is returning to the abandoned polar_move() in bullet. 
+Since polar_move() only updates the direction we can conserve speed, which makes it somewhat easier since we don't have to tweak numbers.
+The way that this would work is by creating a new method that takes a delra_r and a delta_theta and divides them into small steps along a 
+ratio between delta_r and delta_theta. The small steps should be traversable in let's say 20 ticks. 
+For each step polar_move() is called to update the direction. Polar_move can register when destination has been hit, so that can trigger
+the updating to a new destination. 
+Since the total displacement is now gradual, the curve of the path should approximate a movement through the polar plane.
+Theoretically we could create complex paths by stringing together several of these bigger polar motions.
+
+Both ways are promising, and they both have their perks. 
+polar_move() would be smoother to work with, but the Path class is useful for long motions, like the butterfly curve.
+Recreating something like the butterfly curve using individual polar displacements could become a nightmare.
+
+I think I'll do something else today, like working on the music or designing an enemy. I'll continue programming motion
+after doing something a bit less heavy on theory.

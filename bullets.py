@@ -16,10 +16,14 @@ class Bullet(pg.sprite.Sprite):
         self.speed = speed
         self.pos = [self.rect.centerx, self.rect.centery]
         
+        # attributes for move_path()
+        self.path = None
+        self.path_index = 0
+        
         # attributes for angular_move()
         self.start_pos_dummy = [pos[0],pos[1]]
         self.movement_dummy = []
-        self.radius = 2
+        self.theta = 0
         
         # sprite groups
         self.groups = groups
@@ -48,19 +52,19 @@ class Bullet(pg.sprite.Sprite):
         self.rect.centery = round(self.pos[1])
         
     # Linear movement through polar coordinates
-    def polar_move(self, delta_r, delta_phi, initial_position_dummy = []):
+    def polar_move(self, delta_r, delta_theta, initial_position_dummy = []):
         """This method takes a polar coordinate and takes the shortest path towards that coordinate.
         This method came about when attempting to code motion on a polar plane."""
         if 0 not in initial_position_dummy:
             self.current_pos_dummy = (self.pos[0], self.pos[1])
             initial_position_dummy.append(0)
         print(self.current_pos_dummy, initial_position_dummy)
-        displacement_x = delta_r * math.cos(delta_phi)
-        displacement_y = delta_r * math.sin(delta_phi)
+        displacement_x = delta_r * math.cos(delta_theta)
+        displacement_y = delta_r * math.sin(delta_theta)
         total_displacement = math.hypot(displacement_x, displacement_y)
         destination = (self.current_pos_dummy[0] + displacement_x, self.current_pos_dummy[1] + displacement_y)
         print(destination)
-        self.direction = pg.math.Vector2(math.cos(delta_phi), math.sin(delta_phi)).normalize()
+        self.direction = pg.math.Vector2(math.cos(delta_theta), math.sin(delta_theta)).normalize()
         
         if destination[0] >= self.pos[0]:    
             check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) >= destination[0] - (self.direction[0] * self.speed * self.dt)
@@ -78,11 +82,11 @@ class Bullet(pg.sprite.Sprite):
             self.movement_dummy.append(0)
 
     # Angular movement            
-    def angular_move(self, radius, dummy=[]):
+    def angular_move_old0(self, radius, dummy=[]):
         """This method gives an approximation of circular motion.
         This method only influences the direction of the bullet.
         It is imprecise and not recommended for actual usage."""
-        if 0 not in dummy:
+        if not dummy:
             self.start_pos_dummy = (self.pos[0], self.pos[1])
             dummy.append(0)
         origin = (self.start_pos_dummy[0] - radius, self.start_pos_dummy[1])
@@ -91,6 +95,42 @@ class Bullet(pg.sprite.Sprite):
         angular_velocity = (self.pos + (self.direction * self.speed * self.dt))/path
         print(relative_position, angular_velocity)
         self.direction = pg.math.Vector2(((-(self.pos[1] - origin[1]) / radius) * self.dt), (((self.pos[0] - origin[0]) / radius) * self.dt)).normalize()    
+
+    # Movement along a circle
+    def angular_move_old1(self, dt, radius, angle, angular_velocity):
+        # define circle
+        origin = [self.pos[0] - radius, self.pos[1]]
+        current_position = [self.pos[0], self.pos[1]]
+        # relative_position = (current_position - origin)
+        next_position = [current_position[0] + (radius * math.cos(self.theta)), current_position[1] + (radius * -math.sin(self.theta))]
+        self.pos = next_position
+        self.rect.centerx = round(self.pos[0])
+        self.rect.centery = round(self.pos[1])
+        current_position = [self.pos[0], self.pos[1]]
+        self.theta += (angular_velocity * dt) % 2*math.pi
+
+    # Movement along path
+    def move_path(self, dt):
+        """Moves along a path. Loading path into bullet attributes is required."""
+        if self.path != None:
+            path_dict = self.path.create_dict()
+            self.pos = path_dict[self.path_index]
+            self.rect.centerx = round(self.pos[0])
+            self.rect.centery = round(self.pos[1])
+            self.path_index += 1
+            if self.path_index >= len(path_dict):
+                self.pos = [self.rect.centerx, self.rect.centery]
+                self.path = None
+                return 'Done'
+            
+            # Giving direction for animation
+            destination = path_dict[self.path_index]
+            directionx = (destination[0] - self.pos[0]) / math.sqrt(math.pow(destination[0] - self.pos[0], 2) + math.pow(destination[1] - self.pos[1], 2))
+            directiony = (destination[1] - self.pos[1]) / math.sqrt(math.pow(destination[0] - self.pos[0], 2) + math.pow(destination[1] - self.pos[1], 2))
+            self.direction = pg.math.Vector2(directionx, directiony)
+        else:
+            self.pos = [self.rect.center[0], self.rect.center[1]]
+            return 'Done'
 
     # Used in ShotsFired to aim at a position.
     def aim_bullet(self, destination):
@@ -111,9 +151,10 @@ class Bullet(pg.sprite.Sprite):
     def update(self, dt):
         self.update_timestep(dt)
         self.update_current_time()
-        self.move(dt)
         self.remove_bullet()
         self.color_bullet()
+        if self.path == None:
+            self.move(dt)
 
 
 class EnemyBullet(Bullet):
@@ -144,7 +185,6 @@ class EnemyBullet(Bullet):
             ] 
             
     def animate_sprite(self):
-
         animation = self.animations	
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
@@ -156,6 +196,7 @@ class EnemyBullet(Bullet):
         self.image = pg.transform.rotate(self.image, math.degrees(math.atan2(self.direction[0], self.direction[1])))
 
     def move(self, dt):
+        self.pos = [self.pos[0], self.pos[1]]
         self.pos[0] += self.direction[0] * self.speed * dt
         self.pos[1] += self.direction[1] * self.speed * dt
         self.rect.centerx = round(self.pos[0])
@@ -165,9 +206,10 @@ class EnemyBullet(Bullet):
         self.update_timestep(dt)
         self.update_current_time()
         self.animate_sprite()
-        self.move(dt)
         self.remove_bullet()
         # self.color_bullet()
+        if self.path == None:
+            self.move(dt)
         
 
 # multi-shot

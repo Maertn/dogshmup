@@ -288,8 +288,8 @@ class PopcornBird(Enemy):
                 pos = (self.pos[0] - 10, self.rect.bottom),
                 groups = [groups[0], groups[2]],
                 speed = 200,
-                direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
-                number_of_bullets = 3,
+                direction = self.aim_bullet((self.rect.centerx - 10, self.rect.bottom), (player_position[0], player_position[1])),
+                number_of_bullets = 1,
                 spread = 1/10,
                 type = 'type1'
                 )
@@ -324,7 +324,7 @@ class PopcornBird(Enemy):
                 dt = dt,
                 pos = (self.rect.centerx, self.rect.bottom),
                 groups = [groups[0], groups[2]],
-                speed = 500,
+                speed = 350,
                 direction = self.aim_bullet((self.rect.centerx, self.rect.bottom), (player_position[0], player_position[1])),
                 number_of_bullets = 1,
                 spread = 1,

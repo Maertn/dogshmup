@@ -19,16 +19,18 @@ class Level():
         self.display_surface = pg.display.get_surface()
 
         # setting up sprite groups
+        self.player_hitbox_sprite = pg.sprite.Group()
         self.visible_sprites = pg.sprite.Group()
         self.enemy_sprites = pg.sprite.Group()
         self.enemy_bullet_sprites = pg.sprite.Group()
-        self.player_hitbox_sprite = pg.sprite.Group()
+        self.enemy_bullet_sprites1 = pg.sprite.Group()
 
         self.list_of_sprite_groups = [
             self.player_hitbox_sprite,
             self.visible_sprites,
             self.enemy_sprites,
-            self.enemy_bullet_sprites
+            self.enemy_bullet_sprites,
+            self.enemy_bullet_sprites1
         ]
         
         # setup wave spawning
@@ -54,9 +56,10 @@ class Level():
         if dummy:
             pass
         else:
-            wave = TestWavePolar([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
-            # wave = Wave1_1([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
-            self.waves.append(wave)
+            wave_test = TestWavePolar([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites, self.enemy_bullet_sprites1], dt)
+            wave1 = Wave1_1([self.player_hitbox_sprite, self.visible_sprites, self.enemy_sprites, self.enemy_bullet_sprites], dt)
+            self.waves.append(wave_test)
+            self.waves.append(wave1)
             dummy.append(0)
             
         for wave in self.waves:

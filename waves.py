@@ -4,6 +4,7 @@ import math
 from settings import *
 from enemies import Enemy, PopcornBird
 from bullets import EnemyBullet
+from path import CircularPath
 
 
 class Wave:
@@ -36,26 +37,61 @@ class Wave:
         self.spawn_enemies(self.groups, self.current_time, self.dt)
 
 class TestWavePolar(Wave):
+    """Made for testing polar movements"""
     def __init__(self, groups, dt):
         super().__init__(groups, dt)
       
     def spawn_enemies(self, groups, current_time, dt, enemy_dummy =[]):
-        if not enemy_dummy:
+        if 0 not in enemy_dummy:
             EnemyBullet(
                 dt=dt,
-                pos=(SCREEN_WIDTH/2 + 100, SCREEN_HEIGHT/2),
+                pos= [(SCREEN_WIDTH / 2) + 100, SCREEN_HEIGHT / 2],
                 groups=[groups[1], groups[3]],
                 speed=250,
                 direction=(0,1),
                 type='type1'
             )
-            enemy_dummy.append(0)
-        
-        for bullet in groups[3]:
             
-            bullet.angular_move(100)
-                
+            EnemyBullet(
+                dt=dt,
+                pos= [(SCREEN_WIDTH / 2) - 100, SCREEN_HEIGHT / 2],
+                groups=[groups[1], groups[4]],
+                speed=250,
+                direction=(0,1),
+                type='type1'
+            )
+            enemy_dummy.append(0)
 
+        for bullet in groups[3]:
+            if 1 not in enemy_dummy:
+                bullet.path = CircularPath(
+                    dt = dt,
+                    position = bullet.pos,
+                    radius = 200,
+                    angle_in_radians = 4 * math.pi,
+                    velocity = bullet.speed * 10,
+                    phase = 0
+                    )
+                enemy_dummy.append(1)
+            if bullet.path:
+                bullet.move_path(dt)
+            else: continue                
+
+        for bullet in groups[4]:
+            if 2 not in enemy_dummy:
+                bullet.path = CircularPath(
+                    dt = dt,
+                    position = bullet.pos,
+                    radius = 200,
+                    angle_in_radians = math.pi,
+                    velocity = bullet.speed * 5,
+                    phase = math.pi
+                    )
+                enemy_dummy.append(2)
+            if bullet.path:
+                bullet.move_path(dt)
+            else: continue
+            
 class Wave1_1(Wave):
     def __init__(self, groups, dt):
         super().__init__(groups, dt)
