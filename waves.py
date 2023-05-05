@@ -121,14 +121,8 @@ class TestWavePolar1(Wave):
             enemy_dummy.append(0)
         
         for bullet in groups[3]:
-            # if 1 not in enemy_dummy:
-            bullet.polar_move(200, 2*math.pi, 65)
-                # enemy_dummy.append(1)
-        
-        
-
-            
-    
+            bullet.polar_move(100, (1/12)*math.pi, 10)
+               
 class Wave1_1(Wave):
     def __init__(self, groups, dt):
         super().__init__(groups, dt)

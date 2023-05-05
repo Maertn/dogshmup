@@ -27,7 +27,9 @@ class Bullet(pg.sprite.Sprite):
         self.current_direction_dummy = [self.direction[0], self.direction[1]]
         self.movement_dummy = []
         self.polar_move_path_index = 0
+        self.polar = False
         self.theta = 0
+        self.check_dummy = 0
                 
         # sprite groups
         self.groups = groups
@@ -86,6 +88,8 @@ class Bullet(pg.sprite.Sprite):
     def polar_move(self, radius, angle_in_radians, resolution, initial_position_dummy=[]):
         """Curved movement towards the specified polar coordinates with respect to position when called."""
         # get position of call
+        self.polar = True
+        
         if 0 not in initial_position_dummy:
             self.current_pos_dummy1 = (self.pos[0], self.pos[1])
             initial_position_dummy.append(0)
@@ -129,7 +133,7 @@ class Bullet(pg.sprite.Sprite):
             if step < len(position_dict) - 1:
                 next_position = position_dict[step + 1][0]
             else:
-                next_direction = (math.cos(initial_angle + angle_in_radians), math.sin(initial_angle + angle_in_radians))
+                next_direction = (math.sin(initial_angle + angle_in_radians), -math.cos(initial_angle + angle_in_radians))
                 next_position = (current_position[0]+(next_direction[0]*self.speed), (current_position[1]+(next_direction[1]*self.speed)))
             displacement_x = current_position[0] - next_position[0]
             displacement_y = current_position[1] - next_position[1]
@@ -156,36 +160,56 @@ class Bullet(pg.sprite.Sprite):
             destination = (initial_position[0] + position_dict[k + 1][0][0], initial_position[1] + position_dict[k + 1][0][1])
             direction = [position_dict[k][1][0], position_dict[k][1][1]]
             
-            # if destination[0] >= self.pos[0]:
-            #     direction[0] = abs(direction[0])
-            # else: 
-            #     direction[0] = -abs(direction[0])
-            # if destination[1] >= self.pos[1]:
-            #     direction[1] = abs(direction[1])
-            # else: 
-            #     direction[1] = -abs(direction[1])
+            if destination[0] >= self.pos[0]:
+                direction[0] = abs(direction[0])
+            elif destination[0] < self.pos[0]: 
+                direction[0] = -abs(direction[0])
+
             
+            if destination[1] >= self.pos[1]:
+                direction[1] = abs(direction[1])
+            elif destination[1] < self.pos[1]: 
+                direction[1] = -abs(direction[1])
+ 
             
             self.direction = pg.math.Vector2(direction[0], direction[1]).normalize()
             
             print(k, position_dict[k][0][0], destination, initial_position[0] + position_dict[k][0][0] - destination[0], self.direction)
             
+            check_for_x = False
+            check_for_y = False
+            
             if destination[0] >= self.pos[0]:    
-                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) >= destination[0] - (self.direction[0] * self.speed * self.dt)
-            else:
-                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) <= destination[0] - (self.direction[0] * self.speed * self.dt)
+                check_for_x = self.pos[0] >= destination[0] - (self.direction[0] * self.speed * self.dt)
+                diff_x = destination[0] - (self.pos[0] + (self.direction[0] * self.speed * self.dt))
+            if destination[0] < self.pos[0]:
+                check_for_x = self.pos[0] <= destination[0] - (self.direction[0] * self.speed * self.dt)
+                diff_x = destination[0] - (self.pos[0] + (self.direction[0] * self.speed * self.dt))
             
             if destination[1] >= self.pos[1]:
-                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) >= destination[1] - (self.direction[1] * self.speed * self.dt)
-            else:
-                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) <= destination[1] - (self.direction[1] * self.speed * self.dt)
+                check_for_y = self.pos[1] >= destination[1] - (self.direction[1] * self.speed * self.dt)
+                diff_y = destination[1] - (self.pos[1] + (self.direction[1] * self.speed * self.dt))
+            if destination[1] < self.pos[1]:
+                check_for_y = self.pos[1] <= destination[1] - (self.direction[1] * self.speed * self.dt)
+                diff_y = destination[1] - (self.pos[1] + (self.direction[1] * self.speed * self.dt))
             
             if check_for_x and check_for_y:
+                diff = math.sqrt(math.pow(diff_x,2) + math.pow(diff_y,2))
+                self.direction = position_dict[k + 1][1]
+                self.pos = (destination[0] - (diff*self.direction[0]) * 0, destination[1] - (diff_y*self.direction[1]) * 0)
                 self.polar_move_path_index += 1
-            
+                self.check_dummy = 0
+                
+            else:
+                self.pos[0] += self.direction[0] * self.speed * self.dt
+                self.pos[1] += self.direction[1] * self.speed * self.dt
+                self.rect.centerx = round(self.pos[0])
+                self.rect.centery = round(self.pos[1])
+                
+
+
         else:
-            self.direction = (math.cos(initial_angle + angle_in_radians), -math.sin(initial_angle + angle_in_radians))
-            
+            self.direction = (position_dict[len(list(position_dict.items()))-1][1])
                         
     # Angular movement            
     def angular_move_old0(self, radius, dummy=[]):
@@ -259,9 +283,8 @@ class Bullet(pg.sprite.Sprite):
         self.update_current_time()
         self.remove_bullet()
         self.color_bullet()
-        if self.path == None:
+        if self.path == None and self.polar == False:
             self.move(dt)
-
 
 class EnemyBullet(Bullet):
     def __init__(self, dt, pos, groups, speed, direction, type):
@@ -316,7 +339,6 @@ class EnemyBullet(Bullet):
         # self.color_bullet()
         if self.path == None:
             self.move(dt)
-        
 
 # multi-shot
 class ShotsFired:
