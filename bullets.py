@@ -20,11 +20,15 @@ class Bullet(pg.sprite.Sprite):
         self.path = None
         self.path_index = 0
         
-        # attributes for angular_move()
+        # attributes for polar_move() and polar_move_delta(), also angular_move() 
         self.start_pos_dummy = [pos[0],pos[1]]
+        self.current_pos_dummy = [pos[0],pos[1]]
+        self.current_pos_dummy1 = [pos[0],pos[1]]
+        self.current_direction_dummy = [self.direction[0], self.direction[1]]
         self.movement_dummy = []
+        self.polar_move_path_index = 0
         self.theta = 0
-        
+                
         # sprite groups
         self.groups = groups
         
@@ -52,7 +56,7 @@ class Bullet(pg.sprite.Sprite):
         self.rect.centery = round(self.pos[1])
         
     # Linear movement through polar coordinates
-    def polar_move(self, delta_r, delta_theta, initial_position_dummy = []):
+    def polar_move_delta(self, delta_r, delta_theta, initial_position_dummy = []):
         """This method takes a polar coordinate and takes the shortest path towards that coordinate.
         This method came about when attempting to code motion on a polar plane."""
         if 0 not in initial_position_dummy:
@@ -77,10 +81,112 @@ class Bullet(pg.sprite.Sprite):
             check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) <= destination[1] - (self.direction[1] * self.speed * self.dt)
         
         if check_for_x and check_for_y:
-            print('polar_move test')
-            self.speed = 0
-            self.movement_dummy.append(0)
+            return 'Next'
+            
+    def polar_move(self, radius, angle_in_radians, resolution, initial_position_dummy=[]):
+        """Curved movement towards the specified polar coordinates with respect to position when called."""
+        # get position of call
+        if 0 not in initial_position_dummy:
+            self.current_pos_dummy1 = (self.pos[0], self.pos[1])
+            initial_position_dummy.append(0)
+        if 1 not in initial_position_dummy:
+            self.current_direction_dummy = (self.direction[0], self.direction[1])
+        
+        # ratio of radial to angular displacement
+        initial_angle = 0
+        radial_path = radius
+        angular_path = angle_in_radians * radius
+        total_path = radial_path + angular_path
+        if radius !=0 and angle_in_radians !=0:
+            radial_ratio = total_path / radial_path
+            angular_ratio = total_path / angular_path
+        if radius == 0:
+            radial_ratio = 0
+            angular_ratio = 1
+        
+        # rectangular coordinates
+        initial_position = self.current_pos_dummy1
+        origin = (initial_position [0] - radius, initial_position[1])
+        current_direction = (self.direction[0], self.direction[1])
+        polar_path_x = radius * math.cos(angle_in_radians)
+        polar_path_y = radius * math.sin(angle_in_radians)
+        destination = (initial_position[0] + polar_path_x, initial_position[1] + polar_path_y)
+        
+        steps = resolution
+        radial_step = radial_path / steps
+        angular_step = angle_in_radians / steps
+        list_of_steps = list(range(0, steps + 2))
+        position_dict = {}
+        
+        for step in list_of_steps:
+            displacement_x = radial_step * step * math.cos(initial_angle + (angular_step * step))
+            displacement_y = radial_step * step * -math.sin(initial_angle + (angular_step * step))
+            displacement = (displacement_x, displacement_y)
+            position_dict[step] = [displacement]
 
+        for step in list_of_steps:
+            current_position = position_dict[step][0]
+            if step < len(position_dict) - 1:
+                next_position = position_dict[step + 1][0]
+            else:
+                next_direction = (math.cos(initial_angle + angle_in_radians), math.sin(initial_angle + angle_in_radians))
+                next_position = (current_position[0]+(next_direction[0]*self.speed), (current_position[1]+(next_direction[1]*self.speed)))
+            displacement_x = current_position[0] - next_position[0]
+            displacement_y = current_position[1] - next_position[1]
+            displacement = math.sqrt(math.pow(displacement_x,2) + math.pow(displacement_y, 2))
+            direction_x = displacement_x / displacement
+            direction_y = -displacement_y / displacement
+            
+            if current_position[0] <= next_position[0]:
+                direction_x = abs(direction_x)
+            else:
+                direction_x = -abs(direction_x)
+            
+            if current_position[1] <= next_position[1]:
+                direction_y = abs(direction_y)
+            else: 
+                direction_y = -abs(direction_y)
+            
+            direction = (direction_x, direction_y)
+            position_dict[step].append(direction)
+        
+   
+        k = self.polar_move_path_index
+        if k < len(position_dict) - 1:
+            destination = (initial_position[0] + position_dict[k + 1][0][0], initial_position[1] + position_dict[k + 1][0][1])
+            direction = [position_dict[k][1][0], position_dict[k][1][1]]
+            
+            # if destination[0] >= self.pos[0]:
+            #     direction[0] = abs(direction[0])
+            # else: 
+            #     direction[0] = -abs(direction[0])
+            # if destination[1] >= self.pos[1]:
+            #     direction[1] = abs(direction[1])
+            # else: 
+            #     direction[1] = -abs(direction[1])
+            
+            
+            self.direction = pg.math.Vector2(direction[0], direction[1]).normalize()
+            
+            print(k, position_dict[k][0][0], destination, initial_position[0] + position_dict[k][0][0] - destination[0], self.direction)
+            
+            if destination[0] >= self.pos[0]:    
+                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) >= destination[0] - (self.direction[0] * self.speed * self.dt)
+            else:
+                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) <= destination[0] - (self.direction[0] * self.speed * self.dt)
+            
+            if destination[1] >= self.pos[1]:
+                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) >= destination[1] - (self.direction[1] * self.speed * self.dt)
+            else:
+                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) <= destination[1] - (self.direction[1] * self.speed * self.dt)
+            
+            if check_for_x and check_for_y:
+                self.polar_move_path_index += 1
+            
+        else:
+            self.direction = (math.cos(initial_angle + angle_in_radians), -math.sin(initial_angle + angle_in_radians))
+            
+                        
     # Angular movement            
     def angular_move_old0(self, radius, dummy=[]):
         """This method gives an approximation of circular motion.

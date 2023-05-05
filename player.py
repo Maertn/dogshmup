@@ -7,7 +7,7 @@ class Player(pg.sprite.Sprite):
         # creating player sprite
         super().__init__(groups)
         self.image = pg.image.load('graphics/sprites/player/hitbox_sprite_0.png').convert_alpha()
-        self.image = pg.transform.scale(self.image, (10, 10))
+        # self.image = pg.transform.scale(self.image, (10, 10))
         self.rect = self.image.get_rect(center = pos)
         
         # animation attributes
@@ -42,9 +42,9 @@ class Player(pg.sprite.Sprite):
             self.direction[1] = 0
 
         # movement over the x direction
-        if keys[pg.K_LEFT] and self.position[0] >= SCREEN_WIDTH - (GAME_WIDTH + BORDER_WIDTH):
+        if keys[pg.K_LEFT] and self.position[0] >= BORDER_WIDTH:
             self.direction[0] = -1
-        elif keys[pg.K_RIGHT] and self.position[0] <= GAME_WIDTH + BORDER_WIDTH:
+        elif keys[pg.K_RIGHT] and self.position[0] <= BORDER_WIDTH + GAME_WIDTH:
             self.direction[0] = 1
         else:
             self.direction[0] = 0

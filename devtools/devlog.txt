@@ -352,3 +352,73 @@ Recreating something like the butterfly curve using individual polar displacemen
 
 I think I'll do something else today, like working on the music or designing an enemy. I'll continue programming motion
 after doing something a bit less heavy on theory.
+
+2023-05-05
+1. 
+I created a method for bullet that walks along a polar path. It doesn't quite work tho.
+The exit direction is messed up, but more importantly the bullet gets visually glitchy. I know why both things happen.
+The exit direction is messed up because I didn't bother with the trigonometry anymore when I was almost finished, so I just entered 
+some trig functions that gave a correct visual. I'll probably have to rewrite the function, so it doesn't matter.
+
+
+        
+        # find change in direction
+        for step in list_of_steps:
+            if step < len(position_dict) - 1:
+                delta_direction_x = position_dict[step + 1][1][1] - position_dict[step][1][0]
+                delta_direction_y = position_dict[step + 1][1][1] - position_dict[step][1][0]
+            else:
+                delta_direction_x = (math.sin(initial_angle + angle_in_radians)) - position_dict[step][1][0]
+                delta_direction_x = -(math.cos(initial_angle + angle_in_radians)) - position_dict[step][1][1]
+            delta_direction = (delta_direction_x, delta_direction_y)
+            position_dict[step].append(delta_direction)
+   
+        # create movement
+        k = self.polar_move_path_index
+        if k < len(position_dict) - 1:
+            destination = (initial_position[0] + position_dict[k + 1][0][0], initial_position[1] + position_dict[k + 1][0][1])
+            direction = [position_dict[k][1][0], position_dict[k][1][1]]
+            delta_direction = [position_dict[k][2][0], position_dict[k][2][1]]
+            
+            if destination[0] >= self.pos[0]:
+                direction[0] = abs(direction[0])
+            else: 
+                direction[0] = -abs(direction[0])
+            if destination[1] >= self.pos[1]:
+                direction[1] = abs(direction[1])
+            else: 
+                direction[1] = -abs(direction[1])
+            
+            if destination[0] >= self.pos[0]:
+                delta_direction[0] = abs(delta_direction[0])
+            else: 
+                delta_direction[0] = -abs(delta_direction[0])
+            if destination[1] >= self.pos[1]:
+                delta_direction[1] = abs(delta_direction[1])
+            else: 
+                delta_direction[1] = -abs(delta_direction[1])
+            delta_direction = pg.math.Vector2(delta_direction).normalize()
+            
+            if self.direction != direction: 
+                self.direction = pg.math.Vector2(self.direction)
+                self.direction += delta_direction
+                self.direction.normalize()
+            
+            if destination[0] >= self.pos[0]:    
+                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) >= destination[0] - (self.direction[0] * self.speed * self.dt)
+            else:
+                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) <= destination[0] - (self.direction[0] * self.speed * self.dt)
+            
+            if destination[1] >= self.pos[1]:
+                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) >= destination[1] - (self.direction[1] * self.speed * self.dt)
+            else:
+                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) <= destination[1] - (self.direction[1] * self.speed * self.dt)
+            
+            if check_for_x and check_for_y:
+                self.polar_move_path_index += 1
+            
+        else:
+            self.direction = (math.sin(initial_angle + angle_in_radians), -math.cos(initial_angle + angle_in_radians))
+            self.direction = pg.math.Vector2(self.direction).normalize()
+            
+        print(k, initial_position, destination, direction, self.direction)

@@ -289,8 +289,8 @@ class PopcornBird(Enemy):
                 groups = [groups[0], groups[2]],
                 speed = 200,
                 direction = self.aim_bullet((self.rect.centerx - 10, self.rect.bottom), (player_position[0], player_position[1])),
-                number_of_bullets = 1,
-                spread = 1/10,
+                number_of_bullets = 10,
+                spread = 1,
                 type = 'type1'
                 )
             self.shot_dict.append(shot)
@@ -298,7 +298,7 @@ class PopcornBird(Enemy):
             self.bullet_dummy.append(1)
 
         if 1 in self.bullet_dummy:
-            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 250)
+            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 100)
             if cooldown:
                 self.bullet_spawn.pop()
                 self.bullet_dummy.pop()

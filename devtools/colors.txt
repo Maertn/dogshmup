@@ -7,4 +7,5 @@ c69fa5
 272744
 
 #hitboxsprite
-fb8ffb (very pink)
+6178b3 (darker pastel blue)
+c1e1f5 (lighter pastel blue)
