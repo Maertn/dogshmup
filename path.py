@@ -22,10 +22,3 @@ class CircularPath:
             positiony = self.initial_position[1] + math.sin(current_angle) * self.radius
             dict[step] = (positionx, positiony)
         return dict
-    
-
-
-
-# if __name__ == "__main__":
-#     path = CircularPath((0,0), 10, 2*math.pi, math.pi/12)
-#     print(path.create_dict())

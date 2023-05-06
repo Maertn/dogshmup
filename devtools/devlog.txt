@@ -360,65 +360,90 @@ The exit direction is messed up, but more importantly the bullet gets visually g
 The exit direction is messed up because I didn't bother with the trigonometry anymore when I was almost finished, so I just entered 
 some trig functions that gave a correct visual. I'll probably have to rewrite the function, so it doesn't matter.
 
+2023-05-06
+1.
+A friend and professional programmer looked at my code today, while I was dealing with the polar motion code. We tried fixing the 
+visual glitch. He gave some advice, and I made code that sort of worked.
 
-        
-        # find change in direction
-        for step in list_of_steps:
-            if step < len(position_dict) - 1:
-                delta_direction_x = position_dict[step + 1][1][1] - position_dict[step][1][0]
-                delta_direction_y = position_dict[step + 1][1][1] - position_dict[step][1][0]
-            else:
-                delta_direction_x = (math.sin(initial_angle + angle_in_radians)) - position_dict[step][1][0]
-                delta_direction_x = -(math.cos(initial_angle + angle_in_radians)) - position_dict[step][1][1]
-            delta_direction = (delta_direction_x, delta_direction_y)
-            position_dict[step].append(delta_direction)
-   
-        # create movement
-        k = self.polar_move_path_index
-        if k < len(position_dict) - 1:
-            destination = (initial_position[0] + position_dict[k + 1][0][0], initial_position[1] + position_dict[k + 1][0][1])
-            direction = [position_dict[k][1][0], position_dict[k][1][1]]
-            delta_direction = [position_dict[k][2][0], position_dict[k][2][1]]
-            
-            if destination[0] >= self.pos[0]:
-                direction[0] = abs(direction[0])
-            else: 
-                direction[0] = -abs(direction[0])
-            if destination[1] >= self.pos[1]:
-                direction[1] = abs(direction[1])
-            else: 
-                direction[1] = -abs(direction[1])
-            
-            if destination[0] >= self.pos[0]:
-                delta_direction[0] = abs(delta_direction[0])
-            else: 
-                delta_direction[0] = -abs(delta_direction[0])
-            if destination[1] >= self.pos[1]:
-                delta_direction[1] = abs(delta_direction[1])
-            else: 
-                delta_direction[1] = -abs(delta_direction[1])
-            delta_direction = pg.math.Vector2(delta_direction).normalize()
-            
-            if self.direction != direction: 
-                self.direction = pg.math.Vector2(self.direction)
-                self.direction += delta_direction
-                self.direction.normalize()
-            
-            if destination[0] >= self.pos[0]:    
-                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) >= destination[0] - (self.direction[0] * self.speed * self.dt)
-            else:
-                check_for_x = self.pos[0] + (self.direction[0] * self.speed * self.dt) <= destination[0] - (self.direction[0] * self.speed * self.dt)
-            
-            if destination[1] >= self.pos[1]:
-                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) >= destination[1] - (self.direction[1] * self.speed * self.dt)
-            else:
-                check_for_y = self.pos[1] + (self.direction[1] * self.speed * self.dt) <= destination[1] - (self.direction[1] * self.speed * self.dt)
-            
-            if check_for_x and check_for_y:
-                self.polar_move_path_index += 1
-            
-        else:
-            self.direction = (math.sin(initial_angle + angle_in_radians), -math.cos(initial_angle + angle_in_radians))
-            self.direction = pg.math.Vector2(self.direction).normalize()
-            
-        print(k, initial_position, destination, direction, self.direction)
+Maybe I'll recap the past three days which were spent trying to work with angular movement, polar movement specifically.
+The next thing I'll do is clean the code and remove the experimental methods and unnecessary attributes, so this seems the appropriate time.
+First of all, I've spent time running a severe refresher on complex numbers, trigonometry and to a lesser extent calculus. I'm no natural. That
+shit is hard. It was very interesting to implement ideas that I only learned about theoretically in algebra. Specifically the 
+translation from polar to rectangular I enjoyed thinking about. Also, the mathematics in the code is correct, which is very satisfying.
+
+What doesn't work all that well are the algorithms. I've accumulated five version of angular displacements, four of which will be scrapped.
+My friend advised a branch for keeping scrap, which is a more practical take on branching compared to my practice of branching for fun 
+and celebrating the implementation of a thing. I think all five are interesting.
+
+The first one takes the derivative of movement along a circle, and takes it as instructions for change in direction. It looked pretty cool,
+but since the code for determining the shape of the circle was declared as a position check between current position of the object and 
+an origin, the algorithm was unpredictable. The path would change pretty quick, with the radius expanding over time.
+I think this is because the direction is always aimed outwards, and movement along the axis is predicted through a timestep, so we see an
+extrapolation of movement that moves outwards, resulting in small errors in the player position. It could do quite a few itterations before running
+off the screen. It could be 'stable' for a minute or more, but always move out of bounds. Besides that, the trajectory was obviously somewhat chaotic,
+which isn't on brand for shmups.
+
+The second algorithm is a precursor to the fourth, and differs from the first one in a very distinct way.
+Instead of updating the direction, we take a serie of points along the circumference of a circle, and update the player_position accoring to
+these predetermined points. The formula given is the polar expression, r(cos(theta) + sin(theta)).
+The adjustment of direction has my preference. It's the next best thing to acceleration as a variable in this project to get some smooth motion.
+The movement along points always looks sort of choppy. It's also a negative that the resolution you use for the path has a direct effect on the speed
+of the motion. The fluidity of motion shouldn't come at the cost of velocities that create fun gameplay. And it also doesn't look that well at higher 
+resolutions. It's like the bullets take on a floaty quality.
+
+The third algorithm is somewhat half-assed, in the sense that it does a thing that I intended to expanded upon, but didn't do.
+It takes polar coordinates and creates a direction towards it, including a check for destination reached. It uses the polar expression, controls the
+direction of the object instead of position directly. The idea was to create something that in hindsight might be described as recursive. After finding
+the endpoint, you could ask to find the middle, and after that two quarters, etc. This would've been an attempt to merge the fluidity of angular acceleration with
+a predetermined path, and it should theoretically work. I'm not sure if it has a direct benefit for my game compared to other methods that also rely on
+directional change through points (which I'll get to). In the end I didn't write the recursive aspect, so it's just a method that does linear movement to
+a polar coordinate.
+
+The fourth is the most promising at this point, unless I want to spent more time trying out complex trig functions (which I don't, for now).
+I've created a class that generates a path as a dict, and returns that dict when called.
+It uses the polar equation, so angle in radians and radius are parameters. Angular velocity as parameter is basically the resolution.
+Also a phase can be provided, starting the motion at a certain point of the circle.
+The bullet updates position. The direction is calculated after the fact so the image can be rotated accordingly.
+In bullet we get an attribute that checks if a path is loaded. If it is, move() isn't executed.
+It's the best looking option, by far, and precise. With some manual tweaking of the numbers it can be used to have smooth motion. 
+It's somewhat cumbersome to declare, since it requires some parameters, and those parameters need tweaking.
+The class can be expanded upon to create more complex parametric motions, which'll no doubt introduce their own particularities,
+but it's nice to have this specific problem of angular motion delegated to a seperate area in the code, with customizable features.
+
+The most interesting method is the one that took most of one day to get working. It delegates direction through a pregenerated path
+which assumes a delta_radius and delta_theta as arguments. The range of motions would be small drifts to circles to sprirals. Sprirals
+were the prime example of motion that I tested, since it has the nasty habit to generate a lot of points at the start and remarkably less
+as the spiral progresses. This is troublesome since it makes both movement methods implemented so far iffy. Teleportation isn't an option 
+because of the gaps at the end, and control of direction gets very funky, when implemented incorrectly, if the points are so close that 
+multiple are passed during a single tick. The checks for passing a point either activate too fast, or they don't, hence don't updating to
+the new direction, or they wobbly about maniacally when attempting to use direction += delta_theta. It got all kinds of weird.
+The dictionary applied in this method was also more elaborate, predetermining the direction for the bullet, which is what did the updating.
+The math also got quite funky. I had to manually check for correctness of signs since the output wasn't what I expected. I ended up
+having do two of those sign corrections, one in the generation of the dictionary, one when applying the motion. What then happened is that
+I got stuck with a visual glitch which occured because of the checks for sign changes, briefly putting the bullet in a state where 
+position > destination because the destination hadn't updated that tick, showing an orientation in the opposite direction.
+The solution was to move the linear movement into the method, predicting when speed would cross destination, and then teleport pos to
+destination. An attempted addition to this algorithm is the preservation of distance teleported, and adding the remainder to the next
+tick of movement.
+
+The fifth was quite an undertaking, and the result was as expected, but underwhelming. The movement looks somewhat glitchy, due to 
+the points of the spiral. At the start the points lie so closely together that the bullet glides over them. It isn't too bad, but
+noticeable enough. After that the points where the direction is updated are visible. Again, not too bad, but bad enough.
+Also the exit velocity is a pain to implement correctly, and this aspect is still unfinished. This has all the perks of point
+generated paths, but also the most obvious flaws. This is as precise as I could regulate direction without directly manipulating
+the position while also maintaining precision and having a large range of possible motions, with my current skills at least.
+It did what I wanted tho. To move to a polar coordinate as if on a polar plane, creating a curve with a relatively large radius,
+and a spriral with a relatively large angular displacement.
+
+Come to think of it, this is quite similar to my testsuite in SpaceFighter where I created a path using parametric equations,
+but with a more complex purpose and execution. It's nice to see some progress in the code, even though the game isn't that
+much farther.
+
+I can think of one algorithm that might be feasible in the future, where direction is controlled through a delta angle,
+changing angular velocity with dt directly, and through trigonometric functions that reflect the change of the direction
+along a trajectory. It'll require some calculus, and some thought on how to implement this correctly, probably using NumPy
+and some fancy math algorithms. For now, I'm definitely done with the complicated polar paths. I really want to focus on
+creating more enemies. I'll use the path methods for changing direction, or simply write something functionally if I 
+really want to. The next thing I'll do is remove everything that I'm not using or improving upon right now, and do some
+housekeeping with regard to attributes and maybe some organization of class responsibilities / polymorphisms (thanks for
+the good advice Redstorm!)

@@ -156,14 +156,14 @@ class Bullet(pg.sprite.Sprite):
             destination = (initial_position[0] + position_dict[k + 1][0][0], initial_position[1] + position_dict[k + 1][0][1])
             direction = [position_dict[k][1][0], position_dict[k][1][1]]
             
-            # if destination[0] >= self.pos[0]:
-            #     direction[0] = abs(direction[0])
-            # else: 
-            #     direction[0] = -abs(direction[0])
-            # if destination[1] >= self.pos[1]:
-            #     direction[1] = abs(direction[1])
-            # else: 
-            #     direction[1] = -abs(direction[1])
+            if destination[0] >= self.pos[0]:
+                direction[0] = abs(direction[0])
+            else: 
+                direction[0] = -abs(direction[0])
+            if destination[1] >= self.pos[1]:
+                direction[1] = abs(direction[1])
+            else: 
+                direction[1] = -abs(direction[1])
             
             
             self.direction = pg.math.Vector2(direction[0], direction[1]).normalize()
