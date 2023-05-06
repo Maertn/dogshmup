@@ -9,3 +9,6 @@ c69fa5
 #hitboxsprite
 6178b3 (darker pastel blue)
 c1e1f5 (lighter pastel blue)
+
+#yellow bullets
+d6da62

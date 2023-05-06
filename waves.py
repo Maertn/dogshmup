@@ -105,7 +105,7 @@ class TestWavePolar1(Wave):
                 groups=[groups[1], groups[3]],
                 speed=150,
                 direction=(0,1),
-                type='type1'
+                type='type2'
             )
             # bullet_dict = bullet.polar_move(100, math.pi, 50)
             # print(bullet_dict)
@@ -121,7 +121,7 @@ class TestWavePolar1(Wave):
             enemy_dummy.append(0)
         
         for bullet in groups[3]:
-            bullet.polar_move(100, (1/12)*math.pi, 10)
+            bullet.polar_move(300, 5*math.pi, 100)
                
 class Wave1_1(Wave):
     def __init__(self, groups, dt):
