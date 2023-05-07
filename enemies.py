@@ -195,63 +195,6 @@ class PopcornBird(Enemy):
         self.image = pg.transform.scale(self.image, (64, 64))
         self.rect = self.image.get_rect(center = self.pos)
 
-    def ai_test(self, dt, groups):
-        """This AI accelerates into the screen untill 1/4th. 
-        After 1/4th it scrolls downwards, while slowly moving towards the player untill the y position is greater than the player.
-        Between 1/4 and 2/3rd of the screen it shoots bursts of three aimed at the player.
-        After 2/3rd of the screen it shoots single shots aimed at the player."""
-        
-        destination = (self.rect.centerx, round(SCREEN_HEIGHT * (1/4)))
-        player_position = groups[0].sprites()[0].position
-
-        # movement
-        if self.pos[1] <= destination[1] - (self.speed * dt):
-            speed = 200 - (dt * self.current_time * 3)
-            self.move_to(dt, destination, speed)
-        else:
-            self.direction = (0,1)
-            self.move(dt)
-            if player_position[1] >= self.pos[1]:
-                self.move_to(dt, player_position, 10)
-
-        # bullets
-        if self.pos[1] >= destination[1] - (self.speed * dt) and (0 not in self.bullet_dummy) and self.pos[1] <= SCREEN_HEIGHT*(2/3):
-            shot = ShotsFired(
-                dt = self.dt,
-                pos = (self.rect.centerx, self.rect.bottom),
-                groups = [groups[0], groups[2]],
-                speed = 200,
-                direction = self.aim_bullet(player_position),
-                number_of_bullets = 3,
-                spread = 1/10
-                )
-            self.shot_dict.append(shot)
-            self.bullet_spawn.append(self.current_time)
-            self.bullet_dummy.append(0)
-
-        if self.pos[1] >= SCREEN_HEIGHT * (2/3) and (0 not in self.bullet_dummy):
-            shot = ShotsFired(
-                dt = self.dt,
-                pos = (self.rect.centerx, self.rect.bottom),
-                groups = [groups[0], groups[2]],
-                speed = 200,
-                direction = self.aim_bullet(player_position),
-                number_of_bullets = 1,
-                spread = 1/10
-                )
-            self.shot_dict.append(shot)
-            self.bullet_spawn.append(self.current_time)
-            self.bullet_dummy.append(0)
-
-        if 0 in self.bullet_dummy:
-            cooldown =  self.create_cooldown(self.dt, self.bullet_spawn[0], 2000)
-            if cooldown:
-                self.bullet_spawn.pop()
-                self.bullet_dummy = []
-
-        for shot in self.shot_dict:
-            shot.update(self.dt)
-
     def ai0(self, dt, groups, movement_switch1, movement_switch2):
         """Requires two movement switches.
         This AI moves the enemy downwards, slightly towards the player.
@@ -289,7 +232,7 @@ class PopcornBird(Enemy):
                 groups = [groups[0], groups[2]],
                 speed = 200,
                 direction = self.aim_bullet((self.rect.centerx - 10, self.rect.bottom), (player_position[0], player_position[1])),
-                number_of_bullets = 10,
+                number_of_bullets = 1,
                 spread = 1,
                 type = 'type1'
                 )
