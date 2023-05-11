@@ -35,7 +35,6 @@ class Wave:
         self.update_timestep(dt)
         self.update_current_time()
         self.spawn_enemies(self.groups, self.current_time, self.dt)
-
   
 class Wave1_1(Wave):
     def __init__(self, groups, dt):

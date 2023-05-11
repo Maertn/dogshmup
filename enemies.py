@@ -11,16 +11,16 @@ class Enemy(pg.sprite.Sprite):
     Width and height are size of hitboxes.
     Movement switches are to be added manually with try-except blocks if more are needed."""
     def __init__(
-                self, 
-                pos: tuple, 
-                dt: float, 
-                groups: pg.sprite.Group, 
-                width: int, 
-                height: int, 
-                speed: int, 
-                direction: tuple,
-                health: int, 
-                **movement_switch):
+            self, 
+            pos: tuple, 
+            dt: float, 
+            groups: pg.sprite.Group, 
+            width: int, 
+            height: int, 
+            speed: int, 
+            direction: tuple,
+            health: int, 
+            **movement_switch):
         super().__init__(groups)
 
         # creating a hitbox
@@ -119,9 +119,6 @@ class Enemy(pg.sprite.Sprite):
         D = (self.rect.right <= BORDER_WIDTH)
         
         if A or B or C or D: self.kill()
-
-    def ai(self, dt, groups):
-        pass
 
     def aim_bullet(self, pos, destination):
         # correction for position, since bullets rect size changes after aiming
